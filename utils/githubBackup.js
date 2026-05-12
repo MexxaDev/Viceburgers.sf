@@ -60,7 +60,7 @@ export async function downloadFile(owner, repo) {
 }
 
 const GITHUB_DEFAULTS = {
-  TOKEN: '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',
+  TOKEN: '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',
   OWNER: 'MexxaDev',
   REPO: 'Viceburgers.sf'
 };
