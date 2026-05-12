@@ -67,6 +67,13 @@ class BackupManager {
     }
   }
 
+  async restoreFromData(data) {
+    if (!data || typeof data !== 'object') {
+      throw new Error('Datos inv\u00e1lidos');
+    }
+    await this._restoreData(data);
+  }
+
   async _cleanupOldSnapshots() {
     const snapshots = await backupSnapshotRepo.findAll();
     if (snapshots.length > MAX_SNAPSHOTS) {

@@ -50,6 +50,15 @@ export async function uploadFile(token, owner, repo, path, content, message) {
   return res.json();
 }
 
+export async function downloadFile(owner, repo) {
+  const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/backups/latest.json`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error('No hay backup disponible en GitHub');
+  }
+  return res.json();
+}
+
 export const GITHUB_CONFIG_KEY = {
   TOKEN: 'github_token',
   OWNER: 'github_owner',

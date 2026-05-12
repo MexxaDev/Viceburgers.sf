@@ -8,7 +8,7 @@ import state from '../../js/state.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
 import backupManager from '../../services/backupManager.js';
 import { logger } from '../../utils/logger.js';
-import { testConnection, loadGitHubConfig, saveGitHubConfig } from '../../utils/githubBackup.js';
+import { testConnection, loadGitHubConfig, saveGitHubConfig, downloadFile } from '../../utils/githubBackup.js';
 
 class Settings {
   constructor() {
@@ -259,6 +259,9 @@ class Settings {
           <button class="btn btn-secondary" id="github-save-btn">
             <i class="fa-solid fa-floppy-disk"></i> Guardar Configuraci\u00f3n
           </button>
+          <button class="btn btn-success" id="github-fetch-btn" style="margin-left:auto;">
+            <i class="fa-solid fa-download"></i> Traer datos
+          </button>
         </div>
         <div id="github-status" style="margin-top:var(--space-3);font-size:var(--text-sm);"></div>
       </div>
@@ -474,6 +477,55 @@ class Settings {
 
       statusEl.innerHTML = '<span style="color:var(--color-success);">Configuraci\u00f3n guardada</span>';
       Toast.success('Guardado', 'Configuraci\u00f3n de GitHub guardada');
+    });
+
+    const fetchBtn = document.getElementById('github-fetch-btn');
+    fetchBtn?.addEventListener('click', () => {
+      const owner = document.getElementById('github-owner')?.value?.trim();
+      const repo = document.getElementById('github-repo')?.value?.trim();
+
+      if (!owner || !repo) {
+        Toast.error('Error', 'Complet\u00e1 owner y repo primero');
+        return;
+      }
+
+      Modal.show({
+        title: '\u00bfDescargar y reemplazar todos los datos locales?',
+        body: '<p>Se descargar\u00e1 el \u00faltimo backup desde GitHub y se reemplazar\u00e1 toda la informaci\u00f3n actual. Esta acci\u00f3n no se puede deshacer.</p>',
+        footer:
+          '<button class="btn btn-secondary" id="modal-cancel-btn" style="margin-right:var(--space-2);">Cancelar</button>' +
+          '<button class="btn btn-danger" id="modal-confirm-fetch">Descargar y reemplazar</button>',
+        onClose: null,
+        closable: true
+      });
+
+      document.getElementById('modal-cancel-btn')?.addEventListener('click', () => Modal.close());
+      document.getElementById('modal-confirm-fetch')?.addEventListener('click', async () => {
+        Modal.close();
+        fetchBtn.disabled = true;
+        fetchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Descargando...';
+
+        try {
+          const data = await downloadFile(owner, repo);
+          const backupData = data?.data || data;
+          if (!backupData || typeof backupData !== 'object') {
+            throw new Error('Formato de backup inv\u00e1lido');
+          }
+          await backupManager.restoreFromData(backupData);
+          statusEl.innerHTML =
+            '<span style="color:var(--color-success);">\u2705 Datos restaurados desde GitHub. Recarg\u00e1 la p\u00e1gina.</span>';
+          Toast.success(
+            'Restaurado',
+            'Datos descargados y restaurados. Recarg\u00e1 la p\u00e1gina para ver los cambios.'
+          );
+        } catch (err) {
+          statusEl.innerHTML = `<span style="color:var(--color-danger);">\u274c Error: ${escapeHtml(err.message)}</span>`;
+          Toast.error('Error', err.message);
+        } finally {
+          fetchBtn.disabled = false;
+          fetchBtn.innerHTML = '<i class="fa-solid fa-download"></i> Traer datos';
+        }
+      });
     });
   }
 
