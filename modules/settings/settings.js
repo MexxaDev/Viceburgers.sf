@@ -554,11 +554,9 @@ class Settings {
           }
           await backupManager.restoreFromData(backupData);
           statusEl.innerHTML =
-            '<span style="color:var(--color-success);">\u2705 Datos restaurados desde GitHub. Recarg\u00e1 la p\u00e1gina.</span>';
-          Toast.success(
-            'Restaurado',
-            'Datos descargados y restaurados. Recarg\u00e1 la p\u00e1gina para ver los cambios.'
-          );
+            '<span style="color:var(--color-success);">\u2705 Datos restaurados. Recargando...</span>';
+          Toast.success('Restaurado', 'Datos descargados de GitHub. Recargando...');
+          setTimeout(() => window.location.reload(), 1500);
         } catch (err) {
           statusEl.innerHTML = `<span style="color:var(--color-danger);">\u274c Error: ${escapeHtml(err.message)}</span>`;
           Toast.error('Error', err.message);

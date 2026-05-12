@@ -71,6 +71,12 @@ class BackupManager {
     if (!data || typeof data !== 'object') {
       throw new Error('Datos inv\u00e1lidos');
     }
+    const storeCount = Object.keys(data).length;
+    const itemCounts = Object.entries(data)
+      .filter(([, v]) => Array.isArray(v))
+      .map(([k, v]) => `${k}:${v.length}`)
+      .join(', ');
+    logger.info('BackupManager', `Restaurando ${storeCount} stores: ${itemCounts}`);
     await this._restoreData(data);
   }
 
