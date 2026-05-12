@@ -105,17 +105,21 @@ class BackupManager {
     await this._cleanupOldSnapshots();
     this._lastSnapshotHash = checksum;
 
-    this._syncToGitHub(snapshot).catch(err => {
-      logger.warn('BackupManager', 'GitHub sync failed', err.message);
-    });
+    this._githubConfig = loadGitHubConfig();
+    const { autoSync } = this._githubConfig;
+    if (autoSync) {
+      this._syncToGitHub(snapshot).catch(err => {
+        logger.warn('BackupManager', 'GitHub sync failed', err.message);
+      });
+    }
 
     return snapshot;
   }
 
   async _syncToGitHub(snapshot) {
-    const { token, owner, repo, autoSync } = this._githubConfig;
-    if (!token || !owner || !repo || !autoSync) {
-      return;
+    const { token, owner, repo } = this._githubConfig;
+    if (!token || !owner || !repo) {
+      throw new Error('GitHub no configurado');
     }
 
     const filename = `backups/syntra-backup-${snapshot.createdAt.replace(/[:.]/g, '-')}.json`;
@@ -129,6 +133,27 @@ class BackupManager {
 
     await uploadFile(token, owner, repo, filename, data, message);
     await uploadFile(token, owner, repo, latestPath, data, `backup: actualizar latest.json${summary}`);
+  }
+
+  async syncSnapshotToGitHub(snapshotId) {
+    this._githubConfig = loadGitHubConfig();
+
+    let snapshot;
+    if (snapshotId) {
+      snapshot = await backupSnapshotRepo.findById(snapshotId);
+      if (!snapshot) {
+        throw new Error('Snapshot no encontrado');
+      }
+    } else {
+      const all = await backupSnapshotRepo.findAll();
+      if (all.length === 0) {
+        throw new Error('No hay snapshots para subir');
+      }
+      snapshot = all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    }
+
+    await this._syncToGitHub(snapshot);
+    return { label: snapshot.label, items: snapshot.summary?.items || 0 };
   }
 
   async listSnapshots() {

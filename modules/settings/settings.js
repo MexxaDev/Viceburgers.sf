@@ -266,6 +266,9 @@ class Settings {
           <button class="btn btn-secondary" id="github-save-btn">
             <i class="fa-solid fa-floppy-disk"></i> Guardar Configuraci\u00f3n
           </button>
+          <button class="btn btn-secondary" id="github-upload-btn">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Subir \u00faltimo snapshot
+          </button>
           <button class="btn btn-success" id="github-fetch-btn" style="margin-left:auto;">
             <i class="fa-solid fa-download"></i> Traer datos
           </button>
@@ -486,6 +489,23 @@ class Settings {
       Toast.success('Guardado', 'Configuraci\u00f3n de GitHub guardada');
     });
 
+    const uploadBtn = document.getElementById('github-upload-btn');
+    uploadBtn?.addEventListener('click', async () => {
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo...';
+      try {
+        const result = await backupManager.syncSnapshotToGitHub();
+        statusEl.innerHTML = `<span style="color:var(--color-success);">\u2705 Subido: ${escapeHtml(result.label)} (${result.items} registros)</span>`;
+        Toast.success('Subido a GitHub', `${result.label}: ${result.items} registros`);
+      } catch (err) {
+        statusEl.innerHTML = `<span style="color:var(--color-danger);">\u274c Error: ${escapeHtml(err.message)}</span>`;
+        Toast.error('Error al subir', err.message);
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Subir \u00faltimo snapshot';
+      }
+    });
+
     const fetchBtn = document.getElementById('github-fetch-btn');
     fetchBtn?.addEventListener('click', () => {
       const owner = document.getElementById('github-owner')?.value?.trim();
@@ -636,6 +656,9 @@ class Settings {
                   </span>
                 </div>
                 <div class="settings-snapshot-item__actions">
+                  <button class="btn btn-sm btn-primary" data-upload="${s.id}" title="Subir este snapshot a GitHub">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                  </button>
                   <button class="btn btn-sm btn-secondary" data-restore="${s.id}" title="Restaurar este snapshot">
                     <i class="fa-solid fa-rotate-left"></i>
                   </button>
@@ -689,6 +712,23 @@ class Settings {
             this.loadSnapshots();
           } catch (err) {
             Toast.error('Error', err.message);
+          }
+        });
+      });
+
+      container.querySelectorAll('[data-upload]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.upload;
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+          try {
+            const result = await backupManager.syncSnapshotToGitHub(id);
+            Toast.success('Subido a GitHub', `${result.label}: ${result.items} registros`);
+          } catch (err) {
+            Toast.error('Error al subir', err.message);
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>';
           }
         });
       });

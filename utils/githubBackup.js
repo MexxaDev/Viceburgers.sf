@@ -79,7 +79,7 @@ export function applyGitHubDefaults() {
       token: GITHUB_DEFAULTS.TOKEN,
       owner: GITHUB_DEFAULTS.OWNER,
       repo: GITHUB_DEFAULTS.REPO,
-      autoSync: false
+      autoSync: true
     });
   }
 }
