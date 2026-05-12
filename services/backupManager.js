@@ -1,6 +1,7 @@
 import db from '../db/indexeddb.js';
 import { backupSnapshotRepo } from '../db/repositories.js';
 import { logger } from '../utils/logger.js';
+import { uploadFile, loadGitHubConfig } from '../utils/githubBackup.js';
 
 const ALL_STORES = [
   'products',
@@ -27,6 +28,11 @@ class BackupManager {
   constructor() {
     this._autoTimer = null;
     this._lastSnapshotHash = null;
+    this._githubConfig = loadGitHubConfig();
+  }
+
+  setGitHubConfig(config) {
+    this._githubConfig = config;
   }
 
   async _computeHash(data) {
@@ -91,7 +97,31 @@ class BackupManager {
     await backupSnapshotRepo.create(snapshot);
     await this._cleanupOldSnapshots();
     this._lastSnapshotHash = checksum;
+
+    this._syncToGitHub(snapshot).catch(err => {
+      logger.warn('BackupManager', 'GitHub sync failed', err.message);
+    });
+
     return snapshot;
+  }
+
+  async _syncToGitHub(snapshot) {
+    const { token, owner, repo, autoSync } = this._githubConfig;
+    if (!token || !owner || !repo || !autoSync) {
+      return;
+    }
+
+    const filename = `backups/syntra-backup-${snapshot.createdAt.replace(/[:.]/g, '-')}.json`;
+    const latestPath = 'backups/latest.json';
+
+    const label = snapshot.label || 'Backup sin etiqueta';
+    const summary = snapshot.summary ? ` (${snapshot.summary.items} items)` : '';
+    const message = `backup: ${label}${summary}`;
+
+    const data = JSON.stringify({ _meta: { uploadedAt: new Date().toISOString() }, data: snapshot.data }, null, 2);
+
+    await uploadFile(token, owner, repo, filename, data, message);
+    await uploadFile(token, owner, repo, latestPath, data, `backup: actualizar latest.json${summary}`);
   }
 
   async listSnapshots() {

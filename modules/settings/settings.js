@@ -8,11 +8,13 @@ import state from '../../js/state.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
 import backupManager from '../../services/backupManager.js';
 import { logger } from '../../utils/logger.js';
+import { testConnection, loadGitHubConfig, saveGitHubConfig } from '../../utils/githubBackup.js';
 
 class Settings {
   constructor() {
     this.settings = {};
     this.logoDataUrl = '';
+    this.githubConfig = loadGitHubConfig();
   }
 
   async load() {
@@ -223,6 +225,44 @@ class Settings {
         </div>
       </div>
 
+      <div class="settings-section">
+        <h3 class="settings-section__title">Sincronizaci\u00f3n GitHub</h3>
+        <div class="settings-section__desc">Sub\u00ed autom\u00e1ticamente los snapshots a tu repositorio de GitHub.</div>
+
+        <div class="form-group">
+          <label class="form-label">Token de GitHub</label>
+          <input type="password" class="form-input" id="github-token" placeholder="ghp_..." value="${escapeHtml(this.githubConfig.token)}" />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-3);">
+          <div class="form-group">
+            <label class="form-label">Owner</label>
+            <input type="text" class="form-input" id="github-owner" placeholder="usuario" value="${escapeHtml(this.githubConfig.owner)}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Repo</label>
+            <input type="text" class="form-input" id="github-repo" placeholder="repositorio" value="${escapeHtml(this.githubConfig.repo)}" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:var(--space-4);">
+          <label style="display:flex;align-items:center;gap:var(--space-2);cursor:pointer;">
+            <input type="checkbox" id="github-auto-sync" ${this.githubConfig.autoSync ? 'checked' : ''}>
+            <span class="form-label" style="margin:0;">Subir autom\u00e1ticamente cada snapshot a GitHub</span>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+          <button class="btn btn-primary" id="github-test-btn">
+            <i class="fa-solid fa-plug"></i> Probar Conexi\u00f3n
+          </button>
+          <button class="btn btn-secondary" id="github-save-btn">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Configuraci\u00f3n
+          </button>
+        </div>
+        <div id="github-status" style="margin-top:var(--space-3);font-size:var(--text-sm);"></div>
+      </div>
+
       <div class="settings-section" id="logs-section">
         <h3 class="settings-section__title">Registros del Sistema</h3>
         <div class="settings-section__desc">Errores y advertencias recientes para depuraci\u00f3n.</div>
@@ -386,6 +426,55 @@ class Settings {
     this.loadSnapshots();
     this.updateQuota();
     this.attachLogEvents();
+    this.attachGitHubEvents();
+  }
+
+  attachGitHubEvents() {
+    const testBtn = document.getElementById('github-test-btn');
+    const saveBtn = document.getElementById('github-save-btn');
+    const statusEl = document.getElementById('github-status');
+
+    testBtn?.addEventListener('click', async () => {
+      const token = document.getElementById('github-token')?.value?.trim();
+      const owner = document.getElementById('github-owner')?.value?.trim();
+      const repo = document.getElementById('github-repo')?.value?.trim();
+
+      if (!token || !owner || !repo) {
+        Toast.error('Error', 'Complet\u00e1 token, owner y repo');
+        return;
+      }
+
+      testBtn.disabled = true;
+      testBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Probando...';
+      statusEl.innerHTML = '<span style="color:var(--color-text-secondary);">Verificando conexi\u00f3n...</span>';
+
+      try {
+        await testConnection(token, owner, repo);
+        statusEl.innerHTML = '<span style="color:var(--color-success);">\u2705 Conexi\u00f3n exitosa</span>';
+        Toast.success('\u00c9xito', 'Conexi\u00f3n verificada correctamente');
+      } catch (err) {
+        statusEl.innerHTML = `<span style="color:var(--color-danger);">\u274c Error: ${escapeHtml(err.message)}</span>`;
+        Toast.error('Error', err.message);
+      } finally {
+        testBtn.disabled = false;
+        testBtn.innerHTML = '<i class="fa-solid fa-plug"></i> Probar Conexi\u00f3n';
+      }
+    });
+
+    saveBtn?.addEventListener('click', () => {
+      const token = document.getElementById('github-token')?.value?.trim();
+      const owner = document.getElementById('github-owner')?.value?.trim();
+      const repo = document.getElementById('github-repo')?.value?.trim();
+      const autoSync = document.getElementById('github-auto-sync')?.checked || false;
+
+      const config = { token, owner, repo, autoSync };
+      saveGitHubConfig(config);
+      this.githubConfig = config;
+      backupManager.setGitHubConfig(config);
+
+      statusEl.innerHTML = '<span style="color:var(--color-success);">Configuraci\u00f3n guardada</span>';
+      Toast.success('Guardado', 'Configuraci\u00f3n de GitHub guardada');
+    });
   }
 
   attachLogEvents() {
