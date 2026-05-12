@@ -6,6 +6,7 @@ import Modal from '../../components/modal.js';
 import Toast from '../../components/toast.js';
 import state from '../../js/state.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
+import { logger } from '../../utils/logger.js';
 
 class Cash {
   async load() {
@@ -18,7 +19,7 @@ class Cash {
       await cashService.getActiveSession();
       this.render();
     } catch (error) {
-      console.error('Error loading cash module:', error);
+      logger.error('Cash', 'Error loading cash module', error);
       if (container) {
         container.innerHTML =
           '<div style="text-align:center;padding:var(--space-8);color:var(--color-danger);"><i class="fa-solid fa-triangle-exclamation" style="font-size:32px;margin-bottom:var(--space-3);display:block;"></i>Error al cargar el modulo de caja</div>';

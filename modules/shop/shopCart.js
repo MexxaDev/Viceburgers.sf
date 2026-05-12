@@ -1,5 +1,7 @@
 'use strict';
 
+import { logger } from '../../utils/logger.js';
+
 class ShopCart {
   constructor() {
     this.items = [];
@@ -19,7 +21,7 @@ class ShopCart {
         }
       }
     } catch (e) {
-      console.error('Cart restore failed:', e);
+      logger.error('ShopCart', 'Cart restore failed', e);
       this.items = [];
       localStorage.removeItem('syntra_shop_cart');
     }

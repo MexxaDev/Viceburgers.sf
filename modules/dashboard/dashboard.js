@@ -8,6 +8,7 @@ import {
   cashMovementRepo,
   categoryRepo
 } from '../../db/repositories.js';
+import { logger } from '../../utils/logger.js';
 import { getPayments, getMethodTotal, PAYMENT_COLORS } from '../../utils/payments.js';
 import { drawBarChart, drawDoughnutChart, drawPieChart } from '../../utils/charts.js';
 import Table from '../../components/table.js';
@@ -90,7 +91,7 @@ class Dashboard {
       const currencySymbol = settings.currencySymbol || '$';
       this.renderDashboard(currencySymbol);
     } catch (error) {
-      console.error('Error loading dashboard stats:', error);
+      logger.error('Dashboard', 'Error loading dashboard stats', error);
       this.cache.sales = [];
       this.cache.products = [];
       this.cache.customers = [];

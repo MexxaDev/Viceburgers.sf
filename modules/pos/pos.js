@@ -6,6 +6,7 @@ import Modal from '../../components/modal.js';
 import state from '../../js/state.js';
 import { format } from '../../utils/currency.js';
 import { getProductImage } from '../../utils/imageHelper.js';
+import { logger } from '../../utils/logger.js';
 import {
   PAYMENT_METHODS,
   getPaymentMethodLabel,
@@ -722,7 +723,7 @@ class POS {
       this.renderCart();
       this.renderCustomerSelect();
     } catch (error) {
-      console.error('Error saving sale:', error);
+      logger.error('POS', 'Error saving sale', error);
       Toast.error('Error', 'No se pudo guardar la venta');
     } finally {
       this._isProcessing = false;

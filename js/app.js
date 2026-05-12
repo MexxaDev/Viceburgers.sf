@@ -19,6 +19,7 @@ import Reports from '../modules/reports/reports.js';
 import BurgerStock from '../modules/burgerStock/burgerStock.js';
 import Notification from '../components/notification.js';
 import { hashPassword } from '../utils/hash.js';
+import { logger } from '../utils/logger.js';
 
 async function seedDatabase() {
   try {
@@ -40,7 +41,7 @@ async function seedDatabase() {
       for (const setting of seedData.settings) {
         await settingRepo.create(setting);
       }
-      console.log('Seed data loaded');
+      logger.info('App', 'Seed data loaded');
     } else {
       const products = await productRepo.findAll();
       if (products.length < seedData.products.length) {
@@ -50,7 +51,7 @@ async function seedDatabase() {
             await productRepo.create(product);
           }
         }
-        console.log('Additional products seeded');
+        logger.info('App', 'Additional products seeded');
       }
 
       const settings = await settingRepo.findAll();
@@ -66,7 +67,7 @@ async function seedDatabase() {
       }
     }
   } catch (error) {
-    console.error('Error seeding database:', error);
+    logger.error('App', 'Error seeding database', error);
   }
 }
 
@@ -342,7 +343,7 @@ async function loadModule(route) {
         break;
     }
   } catch (error) {
-    console.error(`Error loading module ${route}:`, error);
+    logger.error('App', `Error loading module ${route}`, error);
   }
 }
 
@@ -375,7 +376,7 @@ async function loadSettings() {
     });
     state.set('settings', settingsObj);
   } catch (error) {
-    console.error('Error loading settings:', error);
+    logger.error('App', 'Error loading settings', error);
     state.set('settings', { currencySymbol: '$' });
   }
 }
@@ -396,7 +397,7 @@ async function loadSettings() {
     router.init();
     registerSW();
   } catch (error) {
-    console.error('App initialization error:', error);
+    logger.error('App', 'App initialization error', error);
   }
 })();
 
@@ -430,6 +431,6 @@ function registerSW() {
           });
         });
       })
-      .catch(err => console.error('SW registration failed:', err));
+      .catch(err => logger.error('App', 'SW registration failed', err));
   });
 }

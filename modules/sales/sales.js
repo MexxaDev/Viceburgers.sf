@@ -3,6 +3,7 @@
 import { saleRepo, customerRepo } from '../../db/repositories.js';
 import Table from '../../components/table.js';
 import { SALES_COLUMNS, SALES_ACTIONS, prepareSaleRows, showSaleDetail } from './salesTable.js';
+import { logger } from '../../utils/logger.js';
 
 class Sales {
   constructor() {
@@ -21,7 +22,7 @@ class Sales {
       this.customers = await customerRepo.findAll();
       this.render();
     } catch (error) {
-      console.error('Error loading sales:', error);
+      logger.error('Sales', 'Error loading sales', error);
       if (container) {
         container.innerHTML =
           '<div style="text-align:center;padding:var(--space-8);color:var(--color-danger);"><i class="fa-solid fa-triangle-exclamation" style="font-size:32px;margin-bottom:var(--space-3);display:block;"></i>Error al cargar las ventas</div>';

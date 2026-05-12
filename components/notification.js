@@ -2,6 +2,7 @@
 
 import { notificationRepo } from '../db/repositories.js';
 import { escapeHtml } from '../utils/sanitizer.js';
+import { logger } from '../utils/logger.js';
 
 class Notification {
   static container = null;
@@ -43,7 +44,7 @@ class Notification {
       this.showToast(notification);
       return notification;
     } catch (error) {
-      console.error('Error creating notification:', error);
+      logger.error('Notification', 'Error creating notification', error);
     }
   }
 

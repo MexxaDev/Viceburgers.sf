@@ -5,6 +5,7 @@ import ShopCart from './shopCart.js';
 import ShopUI from './shopUI.js';
 import ShopCheckout from './shopCheckout.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
+import { logger } from '../../utils/logger.js';
 
 class Shop {
   constructor() {
@@ -61,13 +62,12 @@ class Shop {
         this.showClosedBanner();
       }
 
-      this.setupSearch();
       this.setupCartButton();
 
       // Pass settings to checkout
       ShopCheckout.setSettings(this.settings);
     } catch (error) {
-      console.error('Error loading shop:', error);
+      logger.error('Shop', 'Error loading shop', error);
       container.innerHTML = `
         <div class="shop-error">
           <i class="fa-solid fa-triangle-exclamation"></i>
@@ -75,109 +75,6 @@ class Shop {
         </div>
       `;
     }
-  }
-
-  setupSearch() {
-    const searchInput = document.getElementById('shop-search');
-    if (!searchInput) {
-      return;
-    }
-
-    let timeout;
-    searchInput.addEventListener('input', e => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        this.searchQuery = e.target.value;
-        this.updateProducts();
-      }, 300);
-    });
-  }
-
-  updateSEO() {
-    const businessName = this.settings.businessName || 'Mi Negocio';
-
-    document.title = `${businessName} - Shop`;
-
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.name = 'description';
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.content = `Hacé tu pedido online en ${businessName}`;
-
-    let ogTitle = document.querySelector('meta[property="og:title"]');
-    if (!ogTitle) {
-      ogTitle = document.createElement('meta');
-      ogTitle.setAttribute('property', 'og:title');
-      document.head.appendChild(ogTitle);
-    }
-    ogTitle.content = `${businessName} - Shop`;
-
-    let ogDesc = document.querySelector('meta[property="og:description"]');
-    if (!ogDesc) {
-      ogDesc = document.createElement('meta');
-      ogDesc.setAttribute('property', 'og:description');
-      document.head.appendChild(ogDesc);
-    }
-    ogDesc.content = `Catálogo online de ${businessName}`;
-
-    let ogUrl = document.querySelector('meta[property="og:url"]');
-    if (!ogUrl) {
-      ogUrl = document.createElement('meta');
-      ogUrl.setAttribute('property', 'og:url');
-      document.head.appendChild(ogUrl);
-    }
-    ogUrl.content = window.location.href;
-  }
-
-  render() {
-    const container = document.getElementById('shop-content');
-    if (!container) {
-      return;
-    }
-
-    const businessName = this.settings.businessName || 'Mi Negocio';
-
-    container.innerHTML = `
-      ${ShopUI.renderHomeHeader(businessName, this.settings)}
-
-      <div class="shop-search-container">
-        <div class="shop-search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="shop-search" class="shop-search-input"
-                 placeholder="Buscar productos..." value="${this.searchQuery}">
-        </div>
-      </div>
-
-      <div class="shop-categories" id="shop-categories">
-        <button class="shop-category-pill ${!this.currentCategory ? 'active' : ''}"
-                data-category-id="all">
-          Todos
-        </button>
-        ${this.categories.map(cat => ShopUI.renderCategoryPill(cat, this.currentCategory === cat.id)).join('')}
-      </div>
-
-        <div class="shop-products-grid" id="shop-products">
-          ${this.getFilteredProducts()
-            .map(p => ShopUI.renderProductCard(p, this.categories))
-            .join('')}
-        </div>
-
-      ${
-        this.products.length === 0
-          ? `
-        <div class="shop-empty">
-          <i class="fa-solid fa-box-open"></i>
-          <p>No hay productos disponibles</p>
-        </div>
-      `
-          : ''
-      }
-    `;
-
-    this.setupEvents();
-    // Cart button is now set up in load() to avoid duplication
   }
 
   getFilteredProducts() {

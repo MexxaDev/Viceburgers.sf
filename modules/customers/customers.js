@@ -5,6 +5,8 @@ import Modal from '../../components/modal.js';
 import Toast from '../../components/toast.js';
 import { validateCustomer } from '../../utils/validators.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
+import { logger } from '../../utils/logger.js';
+import { debounce } from '../../utils/helpers.js';
 
 class Customers {
   constructor() {
@@ -21,7 +23,7 @@ class Customers {
       this.customers = await customerRepo.findAll();
       this.render();
     } catch (err) {
-      console.error('Error loading customers:', err);
+      logger.error('Customers', 'Error loading customers', err);
       if (container) {
         container.innerHTML =
           '<div class="empty-state"><div class="empty-state__icon"><i class="fa-solid fa-triangle-exclamation"></i></div><h3 class="empty-state__title">Error al cargar</h3><p class="empty-state__description">No se pudieron cargar los clientes.</p></div>';
@@ -110,7 +112,8 @@ class Customers {
     listContainer.innerHTML = html;
 
     document.getElementById('add-customer-btn')?.addEventListener('click', () => this.openModal());
-    document.getElementById('customer-search')?.addEventListener('input', e => this.search(e.target.value));
+    const debouncedSearch = debounce(e => this.search(e.target.value), 300);
+    document.getElementById('customer-search')?.addEventListener('input', debouncedSearch);
 
     listContainer.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {

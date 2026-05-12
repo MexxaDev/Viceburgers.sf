@@ -1,6 +1,7 @@
 'use strict';
 
 import { settingRepo } from '../../db/repositories.js';
+import { logger } from '../../utils/logger.js';
 
 class ShopWhatsApp {
   async buildMessage(data, items, settings) {
@@ -71,7 +72,7 @@ class ShopWhatsApp {
       this.openWhatsApp(result.message, result.whatsappNumber);
       return true;
     } catch (error) {
-      console.error('Error sending WhatsApp:', error);
+      logger.error('ShopWhatsApp', 'Error sending WhatsApp', error);
       throw error;
     }
   }

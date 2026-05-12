@@ -8,6 +8,7 @@ import {
 } from '../../db/repositories.js';
 import { findRecipe, getIngredientInfo } from './recipes.js';
 import Notification from '../../components/notification.js';
+import { logger } from '../../utils/logger.js';
 import state from '../../js/state.js';
 
 let idCounter = 0;
@@ -133,7 +134,7 @@ class BurgerStockService {
         await this._processSale(sale);
         this.processedSaleIds.add(sale.id);
       } catch (error) {
-        console.error('[BurgerStock] Error processing sale', sale.id, error);
+        logger.error('BurgerStock', 'Error processing sale', { saleId: sale.id, error });
       }
     }
     this.isProcessing = false;

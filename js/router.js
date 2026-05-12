@@ -1,6 +1,7 @@
 'use strict';
 
 import state from './state.js';
+import { logger } from '../utils/logger.js';
 
 class Router {
   constructor() {
@@ -74,7 +75,7 @@ class Router {
         const { default: Shop } = await import('../modules/shop/shop.js');
         await Shop.load();
       } catch (error) {
-        console.error('Error loading Shop module:', error);
+        logger.error('Router', 'Error loading Shop module', error);
       }
     }
   }

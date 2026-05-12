@@ -1,5 +1,6 @@
 'use strict';
 
+import { logger } from './logger.js';
 import Modal from '../components/modal.js';
 import Toast from '../components/toast.js';
 import { format } from './currency.js';
@@ -104,7 +105,7 @@ export function showTicketModal(title, body) {
           };
           window.print();
         } catch (err) {
-          console.error('Print error:', err);
+          logger.error('Ticket', 'Print error', err);
           Toast.error('Error', 'No se pudo abrir la impresión');
           printBtn.disabled = false;
           printBtn.innerHTML = '<i class="fa-solid fa-print"></i> Imprimir';

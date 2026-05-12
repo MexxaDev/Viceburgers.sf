@@ -122,11 +122,7 @@ class Sidebar {
         hoverTimeout = setTimeout(() => {
           app.classList.add('sidebar-hover-active');
         }, 300);
-      }
-    });
-
-    document.addEventListener('mousemove', e => {
-      if (e.clientX > 300 && isHovering) {
+      } else if (e.clientX > 300 && isHovering) {
         isHovering = false;
         clearTimeout(hoverTimeout);
         hoverTimeout = setTimeout(() => {

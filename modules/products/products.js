@@ -6,6 +6,7 @@ import Toast from '../../components/toast.js';
 import { validateProduct } from '../../utils/validators.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
 import Table from '../../components/table.js';
+import { logger } from '../../utils/logger.js';
 
 class Products {
   constructor() {
@@ -25,7 +26,7 @@ class Products {
       this.categories = await categoryRepo.findAll();
       this.render();
     } catch (err) {
-      console.error('Error loading products:', err);
+      logger.error('Products', 'Error loading products', err);
       if (container) {
         container.innerHTML =
           '<div class="empty-state"><div class="empty-state__icon"><i class="fa-solid fa-triangle-exclamation"></i></div><h3 class="empty-state__title">Error al cargar</h3><p class="empty-state__description">No se pudieron cargar los productos. <button class="btn btn-sm btn-primary" onclick="document.querySelector(\'[data-module=products]\')?.click()">Reintentar</button></p></div>';
@@ -115,7 +116,7 @@ class Products {
           const saleItems = await saleItemRepo.query('productId', product.id);
           hasSales = saleItems && saleItems.length > 0;
         } catch (error) {
-          console.error('Error checking sales history:', error);
+          logger.error('Products', 'Error checking sales history', error);
         }
 
         const safeName = escapeHtml(product.name);

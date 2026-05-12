@@ -1,5 +1,6 @@
 import db from '../db/indexeddb.js';
 import { backupSnapshotRepo } from '../db/repositories.js';
+import { logger } from '../utils/logger.js';
 
 const ALL_STORES = [
   'products',
@@ -190,7 +191,7 @@ class BackupManager {
           await this.createSnapshot('Backup automático', 'automatic');
         }
       } catch (err) {
-        console.error('Auto-backup error:', err);
+        logger.error('BackupManager', 'Auto-backup error', err);
       }
     }, ms);
   }

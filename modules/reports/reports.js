@@ -4,6 +4,7 @@ import { saleRepo, productRepo, customerRepo, categoryRepo } from '../../db/repo
 import { getPayments, PAYMENT_COLORS } from '../../utils/payments.js';
 import { drawBarChart, drawDoughnutChart, drawPieChart } from '../../utils/charts.js';
 import state from '../../js/state.js';
+import { logger } from '../../utils/logger.js';
 
 class Reports {
   constructor() {
@@ -40,7 +41,7 @@ class Reports {
 
       this.render();
     } catch (error) {
-      console.error('Error loading reports:', error);
+      logger.error('Reports', 'Error loading reports', error);
       if (container) {
         container.innerHTML = `
           <div style="text-align:center;padding:var(--space-8);color:var(--color-danger);">
@@ -253,12 +254,17 @@ class Reports {
       return;
     }
 
+    const productMap = {};
+    this.products.forEach(p => {
+      productMap[p.id] = p;
+    });
+
     const productCounts = {};
     this.sales.forEach(sale => {
       if (sale.items && Array.isArray(sale.items)) {
         sale.items.forEach(item => {
+          const product = productMap[item.productId];
           if (!productCounts[item.productId]) {
-            const product = this.products.find(p => p.id === item.productId);
             productCounts[item.productId] = {
               name: item.name || (product ? product.name : 'Unknown'),
               quantity: 0,
@@ -347,12 +353,17 @@ class Reports {
   }
 
   getSalesByCategory(categories) {
+    const productMap = {};
+    this.products.forEach(p => {
+      productMap[p.id] = p;
+    });
+
     const categoryTotals = {};
 
     this.sales.forEach(sale => {
       if (sale.items && Array.isArray(sale.items)) {
         sale.items.forEach(item => {
-          const product = this.products.find(p => p.id === item.productId);
+          const product = productMap[item.productId];
           const categoryId = product ? product.categoryId : 'unknown';
           categoryTotals[categoryId] = (categoryTotals[categoryId] || 0) + (parseFloat(item.subtotal) || 0);
         });

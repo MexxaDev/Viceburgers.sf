@@ -7,6 +7,7 @@ import Toast from '../../components/toast.js';
 import state from '../../js/state.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
 import backupManager from '../../services/backupManager.js';
+import { logger } from '../../utils/logger.js';
 
 class Settings {
   constructor() {
@@ -222,12 +223,28 @@ class Settings {
         </div>
       </div>
 
+      <div class="settings-section" id="logs-section">
+        <h3 class="settings-section__title">Registros del Sistema</h3>
+        <div class="settings-section__desc">Errores y advertencias recientes para depuraci\u00f3n.</div>
+        <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);">
+          <button class="btn btn-sm btn-secondary" id="refresh-logs-btn">
+            <i class="fa-solid fa-rotate"></i> Actualizar
+          </button>
+          <button class="btn btn-sm btn-danger" id="clear-logs-btn">
+            <i class="fa-solid fa-trash"></i> Limpiar
+          </button>
+        </div>
+        <div id="log-entries">
+          <p style="color:var(--color-text-secondary);font-size:var(--text-sm);">Sin registros.</p>
+        </div>
+      </div>
+
       <div style="margin-top:var(--space-6);">
         <button class="btn btn-secondary" id="reset-settings" style="margin-right:var(--space-3);">
           <i class="fa-solid fa-rotate-left"></i> Restablecer Defectos
         </button>
         <button class="btn btn-primary btn-lg" id="save-settings">
-          <i class="fa-solid fa-floppy-disk"></i> Guardar Configuración
+          <i class="fa-solid fa-floppy-disk"></i> Guardar Configuraci\u00f3n
         </button>
       </div>
     `;
@@ -368,6 +385,47 @@ class Settings {
 
     this.loadSnapshots();
     this.updateQuota();
+    this.attachLogEvents();
+  }
+
+  attachLogEvents() {
+    const refreshBtn = document.getElementById('refresh-logs-btn');
+    const clearBtn = document.getElementById('clear-logs-btn');
+
+    refreshBtn?.addEventListener('click', () => this.renderLogs());
+    clearBtn?.addEventListener('click', () => {
+      logger.clear();
+      this.renderLogs();
+      Toast.success('Registros', 'Registros eliminados');
+    });
+
+    this.renderLogs();
+  }
+
+  renderLogs() {
+    const container = document.getElementById('log-entries');
+    if (!container) {
+      return;
+    }
+    const entries = logger.getWarningsAndErrors();
+    if (entries.length === 0) {
+      container.innerHTML =
+        '<p style="color:var(--color-text-secondary);font-size:var(--text-sm);">Sin registros de errores o advertencias.</p>';
+      return;
+    }
+    const html = entries
+      .slice(-50)
+      .reverse()
+      .map(
+        e =>
+          `<div class="log-entry log-entry--${e.level}" title="${escapeHtml(e.message)}">
+            <span class="log-entry__time">${e.timestamp.toLocaleTimeString()}</span>
+            <span class="log-entry__module">${escapeHtml(e.module)}</span>
+            <span class="log-entry__message">${escapeHtml(e.message)}</span>
+          </div>`
+      )
+      .join('');
+    container.innerHTML = html;
   }
 
   async loadSnapshots() {
@@ -571,7 +629,7 @@ class Settings {
 
       Toast.success('Éxito', 'Configuración guardada correctamente');
     } catch (error) {
-      console.error('Error saving settings:', error);
+      logger.error('Settings', 'Error saving settings', error);
       Toast.error('Error', `No se pudo guardar: ${error.message}`);
     }
   }
@@ -615,7 +673,7 @@ class Settings {
       await this.load();
       state.set('settings', this.settings);
     } catch (error) {
-      console.error('Error resetting settings:', error);
+      logger.error('Settings', 'Error resetting settings', error);
       Toast.error('Error', `No se pudo restablecer: ${error.message}`);
     }
   }
