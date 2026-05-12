@@ -17,8 +17,16 @@ class Customers {
       container.innerHTML =
         '<div style="text-align:center;padding:var(--space-8);color:var(--color-text-secondary);"><i class="fa-solid fa-spinner fa-spin" style="font-size:32px;margin-bottom:var(--space-3);display:block;"></i>Cargando clientes...</div>';
     }
-    this.customers = await customerRepo.findAll();
-    this.render();
+    try {
+      this.customers = await customerRepo.findAll();
+      this.render();
+    } catch (err) {
+      console.error('Error loading customers:', err);
+      if (container) {
+        container.innerHTML =
+          '<div class="empty-state"><div class="empty-state__icon"><i class="fa-solid fa-triangle-exclamation"></i></div><h3 class="empty-state__title">Error al cargar</h3><p class="empty-state__description">No se pudieron cargar los clientes.</p></div>';
+      }
+    }
   }
 
   render() {

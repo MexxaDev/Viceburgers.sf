@@ -76,6 +76,9 @@ class Sidebar {
       }
 
       if (item.id === 'logout-btn') {
+        if (!window.confirm('\u00bfEst\u00e1s seguro de cerrar sesi\u00f3n?')) {
+          return;
+        }
         state.clearSession();
         window.location.reload();
         return;

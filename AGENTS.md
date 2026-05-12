@@ -2,9 +2,10 @@
 
 ## Commands
 
-- `npm run lint` — Run ESLint
+- `npm run lint` — Run ESLint (includes .mjs)
 - `npm run format` — Run Prettier
 - `npm run format:check` — Check Prettier formatting
+- `npm test` — Run unit tests (Node built-in test runner)
 
 ## Git Workflow
 
