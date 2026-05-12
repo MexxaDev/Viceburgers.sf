@@ -8,13 +8,20 @@ import state from '../../js/state.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
 import backupManager from '../../services/backupManager.js';
 import { logger } from '../../utils/logger.js';
-import { testConnection, loadGitHubConfig, saveGitHubConfig, downloadFile } from '../../utils/githubBackup.js';
+import {
+  testConnection,
+  loadGitHubConfig,
+  saveGitHubConfig,
+  downloadFile,
+  applyGitHubDefaults
+} from '../../utils/githubBackup.js';
 
 class Settings {
   constructor() {
     this.settings = {};
     this.logoDataUrl = '';
     this.githubConfig = loadGitHubConfig();
+    applyGitHubDefaults();
   }
 
   async load() {
@@ -490,8 +497,13 @@ class Settings {
       }
 
       Modal.show({
-        title: '\u00bfDescargar y reemplazar todos los datos locales?',
-        body: '<p>Se descargar\u00e1 el \u00faltimo backup desde GitHub y se reemplazar\u00e1 toda la informaci\u00f3n actual. Esta acci\u00f3n no se puede deshacer.</p>',
+        title: 'Ingres\u00e1 la contrase\u00f1a',
+        body:
+          '<p>Para descargar datos desde GitHub necesit\u00e1s ingresar la contrase\u00f1a de seguridad.</p>' +
+          '<div class="form-group">' +
+          '<label class="form-label">Contrase\u00f1a</label>' +
+          '<input type="password" class="form-input" id="fetch-password-input" placeholder="Ingres\u00e1 la contrase\u00f1a" autocomplete="off" />' +
+          '</div>',
         footer:
           '<button class="btn btn-secondary" id="modal-cancel-btn" style="margin-right:var(--space-2);">Cancelar</button>' +
           '<button class="btn btn-danger" id="modal-confirm-fetch">Descargar y reemplazar</button>',
@@ -499,8 +511,17 @@ class Settings {
         closable: true
       });
 
-      document.getElementById('modal-cancel-btn')?.addEventListener('click', () => Modal.close());
-      document.getElementById('modal-confirm-fetch')?.addEventListener('click', async () => {
+      const passwordInput = document.getElementById('fetch-password-input');
+      passwordInput?.focus();
+
+      const doFetch = async () => {
+        const password = passwordInput?.value?.trim();
+        if (password !== '3395') {
+          Toast.error('Error', 'Contrase\u00f1a incorrecta');
+          passwordInput?.focus();
+          return;
+        }
+
         Modal.close();
         fetchBtn.disabled = true;
         fetchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Descargando...';
@@ -524,6 +545,14 @@ class Settings {
         } finally {
           fetchBtn.disabled = false;
           fetchBtn.innerHTML = '<i class="fa-solid fa-download"></i> Traer datos';
+        }
+      };
+
+      document.getElementById('modal-cancel-btn')?.addEventListener('click', () => Modal.close());
+      document.getElementById('modal-confirm-fetch')?.addEventListener('click', doFetch);
+      passwordInput?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          doFetch();
         }
       });
     });

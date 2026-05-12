@@ -59,6 +59,31 @@ export async function downloadFile(owner, repo) {
   return res.json();
 }
 
+const GITHUB_DEFAULTS = {
+  TOKEN: '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',
+  OWNER: 'MexxaDev',
+  REPO: 'Viceburgers.sf'
+};
+
+function hasAnyGitHubConfig() {
+  return (
+    localStorage.getItem('github_token') !== null ||
+    localStorage.getItem('github_owner') !== null ||
+    localStorage.getItem('github_repo') !== null
+  );
+}
+
+export function applyGitHubDefaults() {
+  if (!hasAnyGitHubConfig()) {
+    saveGitHubConfig({
+      token: GITHUB_DEFAULTS.TOKEN,
+      owner: GITHUB_DEFAULTS.OWNER,
+      repo: GITHUB_DEFAULTS.REPO,
+      autoSync: false
+    });
+  }
+}
+
 export const GITHUB_CONFIG_KEY = {
   TOKEN: 'github_token',
   OWNER: 'github_owner',
@@ -68,9 +93,9 @@ export const GITHUB_CONFIG_KEY = {
 
 export function loadGitHubConfig() {
   return {
-    token: localStorage.getItem(GITHUB_CONFIG_KEY.TOKEN) || '',
-    owner: localStorage.getItem(GITHUB_CONFIG_KEY.OWNER) || '',
-    repo: localStorage.getItem(GITHUB_CONFIG_KEY.REPO) || '',
+    token: localStorage.getItem(GITHUB_CONFIG_KEY.TOKEN) || GITHUB_DEFAULTS.TOKEN,
+    owner: localStorage.getItem(GITHUB_CONFIG_KEY.OWNER) || GITHUB_DEFAULTS.OWNER,
+    repo: localStorage.getItem(GITHUB_CONFIG_KEY.REPO) || GITHUB_DEFAULTS.REPO,
     autoSync: localStorage.getItem(GITHUB_CONFIG_KEY.AUTO_SYNC) === 'true'
   };
 }
