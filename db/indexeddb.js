@@ -1,7 +1,7 @@
 'use strict';
 
 const DB_NAME = 'pos_premium_db';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 const STORES = {
   products: {
@@ -105,6 +105,11 @@ const STORES = {
       { name: 'createdAt', keyPath: 'createdAt' },
       { name: 'type', keyPath: 'type' }
     ]
+  },
+  counters: {
+    keyPath: 'id',
+    autoIncrement: false,
+    indexes: []
   }
 };
 

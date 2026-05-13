@@ -20,6 +20,7 @@ import BurgerStock from '../modules/burgerStock/burgerStock.js';
 import Notification from '../components/notification.js';
 import { hashPassword } from '../utils/hash.js';
 import { logger } from '../utils/logger.js';
+import { getDefaultRoute } from '../config/permissions.js';
 
 async function seedDatabase() {
   try {
@@ -115,7 +116,7 @@ function initLogin() {
         <button type="submit" class="btn btn-primary btn-block btn-lg">Ingresar</button>
       </form>
       <div class="login-footer">
-        <p>Demo: admin / admin123 o cajero / cajero123</p>
+        <p>Usuarios: admin · supervisor · cajero</p>
       </div>
     </div>
   `;
@@ -147,12 +148,11 @@ function initLogin() {
       loginScreen.style.display = 'none';
       appContainer.style.display = 'grid';
 
-      if (user.role === 'cajero') {
-        appContainer.classList.add('sidebar-collapsed');
-      }
-
       initApp();
       Toast.success('Bienvenido', `Hola ${user.name}`);
+
+      const defaultRoute = getDefaultRoute(user.role);
+      window.location.hash = defaultRoute;
     } else {
       Toast.error('Error', 'Credenciales incorrectas');
     }
@@ -176,7 +176,9 @@ function initApp() {
 
   if (state.get('currentUser')) {
     loadSettings();
-    loadModule(state.get('currentRoute') || 'dashboard');
+    const user = state.get('currentUser');
+    const route = state.get('currentRoute') || getDefaultRoute(user.role);
+    loadModule(route);
   }
 }
 

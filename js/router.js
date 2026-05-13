@@ -2,6 +2,7 @@
 
 import state from './state.js';
 import { logger } from '../utils/logger.js';
+import { hasRoutePermission, getDefaultRoute } from '../config/permissions.js';
 
 class Router {
   constructor() {
@@ -27,18 +28,31 @@ class Router {
 
   handleRoute() {
     let hash = window.location.hash.slice(1) || 'dashboard';
+    const user = state.get('currentUser');
+    const role = user ? user.role : null;
 
     state.set('currentRoute', hash);
 
     if (this.publicRoutes.includes(hash)) {
       this.showPublicRoute(hash);
-    } else {
-      if (!this.privateRoutes.includes(hash)) {
-        hash = 'dashboard';
-        window.location.hash = hash;
-      }
-      this.showPrivateRoute(hash);
+      return;
     }
+
+    if (!user) {
+      return;
+    }
+
+    if (!hasRoutePermission(role, hash)) {
+      hash = getDefaultRoute(role);
+      window.location.hash = hash;
+    }
+
+    if (!this.privateRoutes.includes(hash)) {
+      hash = getDefaultRoute(role);
+      window.location.hash = hash;
+    }
+
+    this.showPrivateRoute(hash);
   }
 
   navigate(route) {

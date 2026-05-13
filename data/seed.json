@@ -256,8 +256,9 @@
     }
   ],
   "users": [
-    { "id": "user_1", "username": "admin", "password": "admin123", "role": "admin", "name": "Administrador" },
-    { "id": "user_2", "username": "cajero", "password": "cajero123", "role": "cajero", "name": "Cajero" }
+    { "id": "user_1", "username": "admin", "password": "admV1c3", "role": "admin", "name": "Administrador" },
+    { "id": "user_2", "username": "cajero", "password": "Ca7eRo", "role": "cajero", "name": "Cajero" },
+    { "id": "user_3", "username": "supervisor", "password": "Sup3rV1s0r", "role": "supervisor", "name": "Supervisor" }
   ],
   "settings": [
     { "key": "businessName", "value": "Mi Negocio" },

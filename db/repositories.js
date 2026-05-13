@@ -60,3 +60,29 @@ export const burgerSessionRepo = new Repository('burger_stock_sessions');
 export const burgerMovementRepo = new Repository('burger_stock_movements');
 export const burgerSnapshotRepo = new Repository('burger_stock_snapshots');
 export const backupSnapshotRepo = new Repository('backup_snapshots');
+export const counterRepo = new Repository('counters');
+
+const SALE_ID_KEY = 'saleSequence';
+
+export async function generateSaleId() {
+  const year = new Date().getFullYear();
+  return new Promise((resolve, reject) => {
+    const transaction = db.db.transaction('counters', 'readwrite');
+    const store = transaction.objectStore('counters');
+
+    const getReq = store.get(SALE_ID_KEY);
+    getReq.onsuccess = () => {
+      let nextVal;
+      if (getReq.result) {
+        nextVal = getReq.result.value + 1;
+        store.put({ id: SALE_ID_KEY, value: nextVal });
+      } else {
+        nextVal = 1;
+        store.add({ id: SALE_ID_KEY, value: 1 });
+      }
+      const padded = String(nextVal).padStart(6, '0');
+      resolve(`V-${year}-${padded}`);
+    };
+    getReq.onerror = () => reject(getReq.error);
+  });
+}

@@ -109,12 +109,12 @@ class CashService {
     const payments = getPayments(sale);
     for (const p of payments) {
       await cashMovementRepo.create({
-        id: `mov_${Date.now()}_sale_${sale.id.substring(0, 8)}_${p.method}`,
+        id: `mov_${Date.now()}_sale_${sale.id.replace(/[^a-zA-Z0-9]/g, '_')}_${p.method}`,
         sessionId: this.currentSession.id,
         type: 'sale',
         paymentMethod: p.method,
         amount: p.amount,
-        description: `Venta #${sale.id.substring(0, 8)} ${p.method}`,
+        description: `Venta ${sale.id} ${p.method}`,
         date: new Date().toISOString(),
         userId: user?.id,
         saleId: sale.id

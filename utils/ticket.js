@@ -52,7 +52,7 @@ export function renderTicketBody(sale, settings) {
     <div style="font-family:monospace;max-width:min(300px,calc(100vw - 40px));margin:0 auto;padding:20px;background:white;">
       <div style="text-align:center;margin-bottom:20px;">
         <div style="font-size:18px;font-weight:bold;">${businessName}</div>
-        <div style="font-size:12px;color:#666;">Ticket #${sale.id.substring(0, 8)}</div>
+        <div style="font-size:12px;color:#666;">Ticket ${sale.id}</div>
         <div style="font-size:12px;color:#666;">${new Date(sale.date).toLocaleString('es-AR')}</div>
       </div>
       <div style="border-top:1px dashed #ccc;padding-top:10px;margin-bottom:10px;">

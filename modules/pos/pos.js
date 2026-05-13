@@ -1,6 +1,6 @@
 'use strict';
 
-import { productRepo, customerRepo, saleRepo, saleItemRepo, categoryRepo } from '../../db/repositories.js';
+import { productRepo, customerRepo, saleRepo, saleItemRepo, categoryRepo, generateSaleId } from '../../db/repositories.js';
 import Toast from '../../components/toast.js';
 import Modal from '../../components/modal.js';
 import state from '../../js/state.js';
@@ -658,8 +658,9 @@ class POS {
       confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
     }
 
+    const saleId = await generateSaleId();
     const sale = {
-      id: `sale_${Date.now()}`,
+      id: saleId,
       date: new Date().toISOString(),
       sessionId: cashService.currentSession?.id,
       customerId: this.currentCustomer ? this.currentCustomer.id : null,
@@ -688,9 +689,9 @@ class POS {
     try {
       await saleRepo.create(sale);
 
-      for (const item of sale.items) {
+      for (const [index, item] of sale.items.entries()) {
         await saleItemRepo.create({
-          id: `si_${Date.now()}_${item.productId}`,
+          id: `SI-${sale.id}-${String(index + 1).padStart(3, '0')}`,
           saleId: sale.id,
           productId: item.productId,
           quantity: item.quantity,
@@ -714,7 +715,7 @@ class POS {
       await cashService.recordSale(sale);
       state.set('sale:created', { ...sale });
 
-      Toast.success('Éxito', `Venta #${sale.id.substring(0, 8)} confirmada`);
+      Toast.success('Éxito', `Venta ${sale.id} confirmada`);
       this.showTicket(sale);
       this.cart = [];
       this.currentCustomer = null;

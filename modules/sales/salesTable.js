@@ -30,7 +30,7 @@ export function prepareSaleRows(sales, customers) {
         : `<span class="badge badge-primary">${getPaymentMethodLabel(sale.paymentMethod)}</span>`;
 
     return {
-      _id: sale.id ? sale.id.substring(0, 8) : 'N/A',
+      _id: sale.id || 'N/A',
       _date: sale.date ? new Date(sale.date).toLocaleString('es-AR') : 'N/A',
       _customer: customer ? escapeHtml(customer.name) : 'Consumidor Final',
       _total: format(sale.total),
@@ -65,7 +65,7 @@ export function showSaleDetail(row) {
     <div style="margin-bottom:var(--space-4);">
       <div style="display:flex;justify-content:space-between;margin-bottom:var(--space-2);">
         <span style="color:var(--color-text-secondary);">Ticket:</span>
-        <span>#${sale.id.substring(0, 8)}</span>
+        <span>${sale.id}</span>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:var(--space-2);">
         <span style="color:var(--color-text-secondary);">Fecha:</span>

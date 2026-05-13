@@ -3,6 +3,7 @@
 import router from '../js/router.js';
 import state from '../js/state.js';
 import { escapeHtml } from '../utils/sanitizer.js';
+import { getMenuForRole } from '../config/permissions.js';
 
 class Sidebar {
   constructor() {
@@ -11,25 +12,10 @@ class Sidebar {
 
   getMenuItems() {
     const user = state.get('currentUser');
-    const items = [
-      { route: 'dashboard', icon: 'fa-chart-line', label: 'Dashboard' },
-      { route: 'pos', icon: 'fa-cash-register', label: 'POS' },
-      { route: 'products', icon: 'fa-box', label: 'Productos' },
-      { route: 'categories', icon: 'fa-tags', label: 'Categorías' },
-      { route: 'customers', icon: 'fa-users', label: 'Clientes' },
-      { route: 'sales', icon: 'fa-money-bill', label: 'Ventas' },
-      { route: 'cash', icon: 'fa-money-bill-wave', label: 'Caja' }
-    ];
-
-    if (user && user.role === 'admin') {
-      items.push(
-        { route: 'reports', icon: 'fa-chart-bar', label: 'Reportes' },
-        { route: 'burger-stock', icon: 'fa-burger', label: 'Reportes Burgers 🍔' },
-        { route: 'settings', icon: 'fa-gear', label: 'Configuración' }
-      );
+    if (!user) {
+      return [];
     }
-
-    return items;
+    return getMenuForRole(user.role);
   }
 
   render() {

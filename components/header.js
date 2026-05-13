@@ -2,6 +2,17 @@
 
 import state from '../js/state.js';
 import { escapeHtml } from '../utils/sanitizer.js';
+import { ROLES } from '../config/permissions.js';
+
+const ROLE_LABELS = {
+  [ROLES.ADMIN]: 'Administrador',
+  [ROLES.SUPERVISOR]: 'Supervisor',
+  [ROLES.CAJERO]: 'Cajero'
+};
+
+function getRoleLabel(role) {
+  return ROLE_LABELS[role] || role;
+}
 
 class Header {
   constructor() {
@@ -41,7 +52,7 @@ class Header {
           </div>
         </div>
         <span style="font-size:var(--text-sm);color:var(--color-text-secondary);">
-          ${user ? escapeHtml(user.name) : ''} (${user ? escapeHtml(user.role) : ''})
+          ${user ? escapeHtml(user.name) : ''} <span style="color:var(--color-text-muted);font-size:var(--text-xs);">${user ? getRoleLabel(user.role) : ''}</span>
         </span>
       </div>
     `;
