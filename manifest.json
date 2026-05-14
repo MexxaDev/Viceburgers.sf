@@ -1,7 +1,7 @@
 {
-  "name": "POS Premium - Sistema de Gesti\u00f3n",
-  "short_name": "POS Premium",
-  "description": "Sistema de punto de venta premium para tu negocio",
+  "name": "Vice Burgers",
+  "short_name": "Vice Burgers",
+  "description": "Sistema de gestión Vice Burgers",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f13",

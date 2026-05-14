@@ -69,13 +69,14 @@ p {
 
 /* Links */
 a {
-  color: var(--color-primary);
+  color: var(--color-primary-light);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-primary-dark);
+  color: var(--color-primary-lighter);
+  text-shadow: 0 0 8px rgba(225, 58, 122, 0.3);
 }
 
 /* Images */
@@ -128,18 +129,19 @@ select {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-gray-300);
+  background: rgba(225, 58, 122, 0.3);
   border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gray-400);
+  background: rgba(225, 58, 122, 0.5);
 }
 
 /* Selection */
 ::selection {
   background-color: var(--color-primary-200);
-  color: var(--color-primary-darker);
+  color: var(--color-white);
 }
 
 /* Utility Classes */

@@ -6,6 +6,7 @@ import Modal from '../../components/modal.js';
 import Toast from '../../components/toast.js';
 import state from '../../js/state.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
+import { exportCashToPDF } from '../../utils/pdfExport.js';
 import { logger } from '../../utils/logger.js';
 
 class Cash {
@@ -74,6 +75,7 @@ class Cash {
           <div style="display:flex;gap:var(--space-3);margin-top:var(--space-5);">
             <button class="btn btn-secondary" id="add-movement-in"><i class="fa-solid fa-plus"></i> Ingreso</button>
             <button class="btn btn-secondary" id="add-movement-out"><i class="fa-solid fa-minus"></i> Egreso</button>
+            <button class="btn btn-secondary" id="export-pdf-btn"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</button>
             <button class="btn btn-danger" id="close-session-btn" style="margin-left:auto;"><i class="fa-solid fa-lock"></i> Cerrar Caja</button>
           </div>
         </div>
@@ -93,6 +95,7 @@ class Cash {
     document.getElementById('close-session-btn')?.addEventListener('click', () => this.closeSession());
     document.getElementById('add-movement-in')?.addEventListener('click', () => this.addMovement('in'));
     document.getElementById('add-movement-out')?.addEventListener('click', () => this.addMovement('out'));
+    document.getElementById('export-pdf-btn')?.addEventListener('click', () => this.exportPDF());
   }
 
   renderMovementsList(movements) {
@@ -257,6 +260,29 @@ class Cash {
         Toast.error('Error', error.message);
       }
     });
+  }
+
+  async exportPDF() {
+    const btn = document.getElementById('export-pdf-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+    }
+    try {
+      const summary = await cashService.getSessionSummary();
+      const movements = await cashService.getMovements();
+      const settings = state.get('settings');
+      await exportCashToPDF(summary, movements, settings);
+      Toast.success('PDF generado', 'Reporte de caja exportado correctamente');
+    } catch (error) {
+      logger.error('Cash', 'Error exporting PDF', error);
+      Toast.error('Error', 'No se pudo generar el PDF');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Exportar PDF';
+      }
+    }
   }
 
   addMovement(type) {

@@ -3,6 +3,7 @@
 import ShopCart from './shopCart.js';
 import { getProductImage } from '../../utils/imageHelper.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
+import { BRAND } from '../../config/brandConfig.js';
 
 class ShopUI {
   static renderProductCard(product, categories = []) {
@@ -12,14 +13,17 @@ class ShopUI {
     const imageSrc = getProductImage(product, categories);
     const placeholder = getProductImage({ name: 'Product', image: '' }, []);
 
+    const category = categories.find(c => c.id === product.categoryId);
+    const categoryName = category ? category.name : '';
+
     return `
       <div class="shop-product-card ${isOutOfStock ? 'out-of-stock' : ''}" data-product-id="${escapeHtml(product.id)}">
         <div class="shop-product-card__image">
           <img src="${imageSrc}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.onerror=null;this.src='${escapeHtml(placeholder)}';">
           ${hasPromo ? '<div class="shop-product-card__promo">OFF</div>' : ''}
+          ${categoryName ? `<div class="shop-product-card__category">${escapeHtml(categoryName)}</div>` : ''}
         </div>
         <div class="shop-product-card__info">
-          <div class="shop-product-card__category">${escapeHtml(product.category)}</div>
           <h3 class="shop-product-name">${escapeHtml(product.name)}</h3>
           ${product.description ? `<p class="shop-product-desc">${escapeHtml(product.description)}</p>` : ''}
           <div class="shop-product-footer">
@@ -38,7 +42,7 @@ class ShopUI {
   }
 
   static renderCategoryPill(category, isActive = false) {
-    const color = category.color || '#7C3AED';
+    const color = category.color || '#e13a7a';
     return `
       <button class="shop-category-pill ${isActive ? 'active' : ''}"
               data-category-id="${category.id}"
@@ -54,18 +58,20 @@ class ShopUI {
 
     return `
       <div class="shop-cart-button ${count > 0 ? 'has-items' : ''}" id="shop-cart-button">
-        <div class="shop-cart-icon">
-          <i class="fa-solid fa-shopping-bag"></i>
-          ${count > 0 ? `<span class="shop-cart-count">${count}</span>` : ''}
+        <div class="shop-cart-inner">
+          <div class="shop-cart-icon">
+            <i class="fa-solid fa-shopping-bag"></i>
+            ${count > 0 ? `<span class="shop-cart-count">${count}</span>` : ''}
+          </div>
+          <div class="shop-cart-info">
+            ${
+              count > 0
+                ? `<span class="shop-cart-total">$${subtotal.toLocaleString()}</span>`
+                : '<span class="shop-cart-empty">Carrito vacío</span>'
+            }
+          </div>
+          <i class="fa-solid fa-chevron-up shop-cart-arrow"></i>
         </div>
-        <div class="shop-cart-info">
-          ${
-            count > 0
-              ? `<span class="shop-cart-total">$${subtotal.toLocaleString()}</span>`
-              : '<span class="shop-cart-empty">Carrito vacío</span>'
-          }
-        </div>
-        <i class="fa-solid fa-chevron-up shop-cart-arrow"></i>
       </div>
     `;
   }
@@ -227,14 +233,10 @@ class ShopUI {
       <div class="shop-header">
         <div class="shop-header-content">
           <div class="shop-logo">
-            ${
-              settings.logo
-                ? `<img src="${settings.logo}" alt="${businessName}">`
-                : `<div class="shop-logo-placeholder">${businessName.charAt(0)}</div>`
-            }
+            <img src="${BRAND.logo}" alt="${BRAND.name}">
           </div>
           <div class="shop-business-info">
-            <h1 class="shop-business-name">${businessName}</h1>
+            <h1 class="shop-business-name">${BRAND.name}</h1>
             <div class="shop-status ${isOpen ? 'open' : 'closed'}">
               <span class="shop-status-dot"></span>
               ${isOpen ? 'Abierto' : 'Cerrado'}

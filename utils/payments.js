@@ -15,10 +15,10 @@ const METHOD_LABELS = {
 };
 
 export const PAYMENT_COLORS = {
-  cash: '#10B981',
-  debit: '#8B5CF6',
-  transfer: '#3B82F6',
-  account: '#F59E0B'
+  cash: '#34d399',
+  debit: '#e13a7a',
+  transfer: '#60a5fa',
+  account: '#fbbf24'
 };
 
 export function getPaymentMethodLabel(method) {

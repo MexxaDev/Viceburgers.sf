@@ -540,7 +540,7 @@ class Dashboard {
       ctx,
       categoryData.labels,
       categoryData.data,
-      ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'],
+      ['#e13a7a', '#1897b1', '#f06292', '#4db6c9', '#f48fb1', '#80cbd9'],
       currencySymbol
     );
   }
@@ -598,24 +598,24 @@ class Dashboard {
     }
 
     drawBarChart(ctx, labels, hourData, [
-      '#7C3AED',
-      '#A78BFA',
-      '#C4B5FD',
-      '#7C3AED',
-      '#A78BFA',
-      '#C4B5FD',
-      '#7C3AED',
-      '#A78BFA',
-      '#C4B5FD',
-      '#7C3AED',
-      '#A78BFA',
-      '#C4B5FD',
-      '#7C3AED',
-      '#A78BFA',
-      '#C4B5FD',
-      '#7C3AED',
-      '#A78BFA',
-      '#C4B5FD'
+      '#e13a7a',
+      '#1897b1',
+      '#f06292',
+      '#4db6c9',
+      '#e13a7a',
+      '#1897b1',
+      '#f06292',
+      '#4db6c9',
+      '#e13a7a',
+      '#1897b1',
+      '#f06292',
+      '#4db6c9',
+      '#e13a7a',
+      '#1897b1',
+      '#f06292',
+      '#4db6c9',
+      '#e13a7a',
+      '#1897b1'
     ]);
   }
 
@@ -697,8 +697,8 @@ class Dashboard {
 
     ctx.clearRect(0, 0, width, height);
 
-    ctx.strokeStyle = '#E5E7EB';
-    ctx.fillStyle = '#6B7280';
+    ctx.strokeStyle = '#2e282b';
+    ctx.fillStyle = '#a09098';
     ctx.font = '11px Inter';
     ctx.textAlign = 'right';
 
@@ -721,8 +721,8 @@ class Dashboard {
       const y = padding.top + chartHeight - barHeight;
 
       const gradient = ctx.createLinearGradient(x, y, x, padding.top + chartHeight);
-      gradient.addColorStop(0, '#7C3AED');
-      gradient.addColorStop(1, '#C4B5FD');
+      gradient.addColorStop(0, '#e13a7a');
+      gradient.addColorStop(1, '#f06292');
 
       ctx.fillStyle = gradient;
       ctx.beginPath();
@@ -730,14 +730,14 @@ class Dashboard {
       ctx.fill();
 
       if (value > 0) {
-        ctx.fillStyle = '#111827';
+        ctx.fillStyle = '#f5f0f2';
         ctx.font = 'bold 11px Inter';
         ctx.textAlign = 'center';
         ctx.fillText('$' + Math.round(value), x + barWidth / 2, y - 8);
       }
     });
 
-    ctx.fillStyle = '#374151';
+    ctx.fillStyle = '#beb6b9';
     ctx.font = '11px Inter';
     ctx.textAlign = 'center';
     labels.forEach((label, i) => {

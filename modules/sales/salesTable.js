@@ -12,6 +12,7 @@ export const SALES_COLUMNS = [
   { key: '_date', label: 'Fecha' },
   { key: '_customer', label: 'Cliente' },
   { key: '_total', label: 'Total', format: val => `<strong>${val}</strong>` },
+  { key: '_type', label: 'Tipo' },
   { key: '_method', label: 'Método' }
 ];
 
@@ -29,11 +30,18 @@ export function prepareSaleRows(sales, customers) {
         ? '<span class="badge badge-warning">COMBINADO</span>'
         : `<span class="badge badge-primary">${getPaymentMethodLabel(sale.paymentMethod)}</span>`;
 
+    const orderType = sale.orderType || 'takeaway';
+    const typeBadge =
+      orderType === 'delivery'
+        ? '<span class="badge badge-danger">Delivery</span>'
+        : '<span class="badge badge-warning">Take Away</span>';
+
     return {
       _id: sale.id || 'N/A',
       _date: sale.date ? new Date(sale.date).toLocaleString('es-AR') : 'N/A',
       _customer: customer ? escapeHtml(customer.name) : 'Consumidor Final',
       _total: format(sale.total),
+      _type: typeBadge,
       _method: methodBadge,
       _sale: sale,
       _customers: cust
@@ -71,6 +79,31 @@ export function showSaleDetail(row) {
         <span style="color:var(--color-text-secondary);">Fecha:</span>
         <span>${sale.date ? new Date(sale.date).toLocaleString('es-AR') : 'N/A'}</span>
       </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:var(--space-2);">
+        <span style="color:var(--color-text-secondary);">Tipo:</span>
+        <span class="badge ${(sale.orderType || 'takeaway') === 'delivery' ? 'badge-danger' : 'badge-warning'}">${(sale.orderType || 'takeaway') === 'delivery' ? 'Delivery' : 'Take Away'}</span>
+      </div>
+      ${
+        sale.orderType === 'delivery'
+          ? `
+      <div style="border-top:1px dashed var(--color-border-light);padding-top:var(--space-2);margin-top:var(--space-2);">
+        <div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--space-1);font-weight:var(--font-semibold);">DATOS DEL DELIVERY</div>
+        <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);margin-bottom:var(--space-1);">
+          <span style="color:var(--color-text-secondary);">Nombre:</span>
+          <span>${escapeHtml(sale.deliveryName || '-')}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);margin-bottom:var(--space-1);">
+          <span style="color:var(--color-text-secondary);">Teléfono:</span>
+          <span>${escapeHtml(sale.deliveryPhone || '-')}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);">
+          <span style="color:var(--color-text-secondary);">Dirección:</span>
+          <span>${escapeHtml(sale.deliveryAddress || '-')}</span>
+        </div>
+      </div>
+      `
+          : ''
+      }
       <div style="display:flex;justify-content:space-between;margin-bottom:var(--space-2);">
         <span style="color:var(--color-text-secondary);">Cliente:</span>
         <span>${customer ? escapeHtml(customer.name) : 'Consumidor Final'}</span>

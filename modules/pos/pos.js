@@ -1,6 +1,13 @@
 'use strict';
 
-import { productRepo, customerRepo, saleRepo, saleItemRepo, categoryRepo, generateSaleId } from '../../db/repositories.js';
+import {
+  productRepo,
+  customerRepo,
+  saleRepo,
+  saleItemRepo,
+  categoryRepo,
+  generateSaleId
+} from '../../db/repositories.js';
 import Toast from '../../components/toast.js';
 import Modal from '../../components/modal.js';
 import state from '../../js/state.js';
@@ -29,6 +36,10 @@ class POS {
     this.discount = 0;
     this.discountType = 'percent';
     this.payments = [{ method: 'cash', amount: 0 }];
+    this.orderType = 'takeaway';
+    this.deliveryName = '';
+    this.deliveryPhone = '';
+    this.deliveryAddress = '';
     this._isProcessing = false;
   }
 
@@ -51,6 +62,7 @@ class POS {
     this.renderCustomerSelect();
     this.setupBarcodeInput();
     this._renderPaymentUI();
+    this._injectOrderTypeUI();
     this._injectCashButton();
   }
 
@@ -173,6 +185,12 @@ class POS {
     if (this.currentCategory) {
       products = products.filter(p => p.categoryId === this.currentCategory);
     }
+
+    products.sort((a, b) => {
+      if (a.categoryId === 'cat_1' && b.categoryId !== 'cat_1') return -1;
+      if (a.categoryId !== 'cat_1' && b.categoryId === 'cat_1') return 1;
+      return 0;
+    });
 
     if (products.length === 0) {
       container.innerHTML =
@@ -441,12 +459,6 @@ class POS {
       .map((p, i) => {
         const paid = this.payments.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
         const total = this._getTotal();
-        const isCash = p.method === 'cash';
-        const allCash = this.payments.every(x => x.method === 'cash');
-        const cashIdx = this.payments.findIndex(x => x.method === 'cash');
-        const showReceived = isCash && (allCash || cashIdx === i);
-        const changeVal = Math.max(0, (parseFloat(p._received) || 0) - (parseFloat(p.amount) || 0));
-
         return `
         <div class="payment-row" data-index="${i}">
           <select class="payment-row__method" data-index="${i}">
@@ -454,14 +466,6 @@ class POS {
           </select>
           <div class="payment-row__amount-wrap">
             <input type="number" class="payment-row__amount" data-index="${i}" value="${p.amount || ''}" min="0" step="0.01" placeholder="0.00">
-            ${
-              showReceived
-                ? `
-              <input type="number" class="payment-row__received" data-index="${i}" value="${p._received || ''}" placeholder="Recibido" min="0" step="0.01">
-              <span class="payment-row__change ${changeVal > 0 ? 'has-change' : ''}" data-index="${i}">${format(changeVal)}</span>
-            `
-                : ''
-            }
           </div>
           ${this.payments.length > 1 ? `<button class="payment-row__remove" data-index="${i}"><i class="fa-solid fa-xmark"></i></button>` : ''}
         </div>
@@ -483,17 +487,6 @@ class POS {
       inp.oninput = e => {
         const idx = parseInt(e.target.dataset.index);
         this.payments[idx].amount = parseFloat(e.target.value) || 0;
-        this._updatePaymentSummary();
-        this._updateChange(idx);
-      };
-      inp.onfocus = e => e.target.select();
-    });
-
-    document.querySelectorAll('.payment-row__received').forEach(inp => {
-      inp.oninput = e => {
-        const idx = parseInt(e.target.dataset.index);
-        this.payments[idx]._received = parseFloat(e.target.value) || 0;
-        this._updateChange(idx);
         this._updatePaymentSummary();
       };
       inp.onfocus = e => e.target.select();
@@ -596,19 +589,6 @@ class POS {
     }
   }
 
-  _updateChange(idx) {
-    const receivedEl = document.querySelector(`.payment-row__received[data-index="${idx}"]`);
-    const changeEl = document.querySelector(`.payment-row__change[data-index="${idx}"]`);
-    if (!receivedEl || !changeEl) {
-      return;
-    }
-    const amount = parseFloat(this.payments[idx]?.amount) || 0;
-    const received = parseFloat(receivedEl.value) || 0;
-    const change = Math.max(0, received - amount);
-    changeEl.textContent = format(change);
-    changeEl.className = 'payment-row__change' + (change > 0 ? ' has-change' : '');
-  }
-
   async confirmSale() {
     if (this._isProcessing) {
       return;
@@ -648,7 +628,7 @@ class POS {
 
     const primaryMethod = this.payments[0]?.method || 'cash';
     const cashPayment = this.payments.find(p => p.method === 'cash');
-    const cashReceived = cashPayment ? parseFloat(cashPayment._received) || cashPayment.amount : 0;
+    const cashReceived = cashPayment ? cashPayment.amount : 0;
     const change = cashPayment ? Math.max(0, cashReceived - cashPayment.amount) : 0;
 
     this._isProcessing = true;
@@ -683,7 +663,11 @@ class POS {
       })),
       cashReceived: cashPayment ? cashReceived : null,
       change: cashPayment ? change : null,
-      userId: state.get('currentUser')?.id
+      userId: state.get('currentUser')?.id,
+      orderType: this.orderType,
+      deliveryName: this.orderType === 'delivery' ? this.deliveryName : null,
+      deliveryPhone: this.orderType === 'delivery' ? this.deliveryPhone : null,
+      deliveryAddress: this.orderType === 'delivery' ? this.deliveryAddress : null
     };
 
     try {
@@ -721,8 +705,13 @@ class POS {
       this.currentCustomer = null;
       this.discount = 0;
       this.payments = [{ method: 'cash', amount: 0 }];
+      this.orderType = 'takeaway';
+      this.deliveryName = '';
+      this.deliveryPhone = '';
+      this.deliveryAddress = '';
       this.renderCart();
       this.renderCustomerSelect();
+      this._injectOrderTypeUI();
     } catch (error) {
       logger.error('POS', 'Error saving sale', error);
       Toast.error('Error', 'No se pudo guardar la venta');
@@ -741,24 +730,68 @@ class POS {
     showTicketModal('Ticket de Venta', body);
   }
 
-  _injectCashButton() {
-    const header = document.querySelector('.header-right');
-    if (!header) {
+  _injectOrderTypeUI() {
+    const container = document.getElementById('pos-order-type-container');
+    if (!container) {
       return;
     }
-    const existing = document.getElementById('pos-cash-btn');
-    if (existing) {
-      existing.remove();
+
+    container.innerHTML = `
+      <div class="pos-order-type">
+        <div class="pos-order-type__select-wrap">
+          <select id="pos-order-type-select" class="pos-order-type__select">
+            <option value="takeaway" selected>Take Away</option>
+            <option value="delivery">Delivery</option>
+          </select>
+          <i class="fa-solid fa-chevron-down pos-order-type__arrow"></i>
+        </div>
+        <div id="pos-delivery-fields" class="pos-delivery-fields">
+          <div class="pos-delivery-field">
+            <input type="text" id="pos-delivery-name" class="form-input" placeholder="Nombre completo" autocomplete="name">
+          </div>
+          <div class="pos-delivery-field">
+            <input type="tel" id="pos-delivery-phone" class="form-input" placeholder="Teléfono" autocomplete="tel">
+          </div>
+          <div class="pos-delivery-field">
+            <input type="text" id="pos-delivery-address" class="form-input" placeholder="Dirección" autocomplete="street-address">
+          </div>
+        </div>
+      </div>
+    `;
+
+    const select = document.getElementById('pos-order-type-select');
+    const deliveryFields = document.getElementById('pos-delivery-fields');
+
+    select.addEventListener('change', () => {
+      this.orderType = select.value;
+      if (this.orderType === 'delivery') {
+        deliveryFields.classList.add('visible');
+      } else {
+        deliveryFields.classList.remove('visible');
+      }
+    });
+
+    const nameInput = document.getElementById('pos-delivery-name');
+    const phoneInput = document.getElementById('pos-delivery-phone');
+    const addressInput = document.getElementById('pos-delivery-address');
+
+    const saveDelivery = () => {
+      this.deliveryName = nameInput?.value || '';
+      this.deliveryPhone = phoneInput?.value || '';
+      this.deliveryAddress = addressInput?.value || '';
+    };
+
+    nameInput?.addEventListener('input', saveDelivery);
+    phoneInput?.addEventListener('input', saveDelivery);
+    addressInput?.addEventListener('input', saveDelivery);
+  }
+
+  _injectCashButton() {
+    const btn = document.getElementById('pos-cash-btn');
+    if (!btn) {
+      return;
     }
-
-    const btn = document.createElement('button');
-    btn.id = 'pos-cash-btn';
-    btn.className = 'pos-cash-btn';
-    btn.innerHTML = '<i class="fa-solid fa-cash-register"></i>';
-    btn.title = 'Gestión de Caja';
-    btn.setAttribute('aria-label', 'Gestión de Caja');
-    header.appendChild(btn);
-
+    btn.style.display = '';
     btn.onclick = () => this.showCashModal();
   }
 

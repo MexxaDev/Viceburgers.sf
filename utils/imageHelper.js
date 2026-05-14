@@ -1,10 +1,7 @@
 'use strict';
 
-/**
- * Generate a deterministic color from a string
- * @param {string} str - Input string
- * @returns {string} HSL color string
- */
+import { getProductImagePath } from '../config/productImages.js';
+
 function stringToColor(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -14,30 +11,28 @@ function stringToColor(str) {
   return `hsl(${h}, 65%, 55%)`;
 }
 
-/**
- * Generate SVG placeholder image
- * @param {string} name - Product name
- * @param {string} bgColor - Background color (CSS color string)
- * @returns {string} Data URI of SVG
- */
 function generatePlaceholderSVG(name, bgColor) {
   const initial = name.charAt(0).toUpperCase();
   const truncatedName = name.length > 15 ? name.substring(0, 15) + '...' : name;
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="${bgColor}"/><text x="100" y="80" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="600" fill="white" text-anchor="middle" dominant-baseline="middle">${initial}</text><text x="100" y="130" font-family="Inter, Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.85)" text-anchor="middle" dominant-baseline="middle">${truncatedName}</text></svg>`;
+  const svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="${bgColor}"/>
+  <text x="100" y="80" font-family="Inter,Arial,sans-serif" font-size="56" font-weight="600" fill="white" text-anchor="middle" dominant-baseline="middle">${initial}</text>
+  <text x="100" y="130" font-family="Inter,Arial,sans-serif" font-size="14" fill="rgba(255,255,255,0.85)" text-anchor="middle" dominant-baseline="middle">${truncatedName}</text>
+</svg>`;
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-/**
- * Get product image or generate placeholder
- * @param {Object} product - Product object
- * @param {Array} categories - Array of category objects (optional)
- * @returns {string} Image URL or data URI
- */
 function getProductImage(product, categories = []) {
   if (product.image && product.image.trim() !== '') {
     return product.image;
+  }
+
+  const matchedPath = getProductImagePath(product.name);
+  if (matchedPath) {
+    return matchedPath;
   }
 
   let bgColor = null;

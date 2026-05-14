@@ -200,7 +200,7 @@ class Reports {
     const data = this.getSalesByPeriod(this.currentPeriod);
     const labels = this.getPeriodLabels(this.currentPeriod);
 
-    this.drawBarLineChart(ctx, labels, data, 'Ventas', ['#7C3AED', '#A78BFA', '#C4B5FD']);
+    this.drawBarLineChart(ctx, labels, data, 'Ventas', ['#e13a7a', '#1897b1', '#f06292']);
   }
 
   initCategoryChart(currencySymbol, categories) {
@@ -216,7 +216,7 @@ class Reports {
       ctx,
       categoryData.labels,
       categoryData.data,
-      ['#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'],
+      ['#e13a7a', '#1897b1', '#f06292', '#4db6c9', '#f48fb1', '#80cbd9'],
       currencySymbol
     );
   }
@@ -402,8 +402,8 @@ class Reports {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
 
-      ctx.strokeStyle = '#E5E7EB';
-      ctx.fillStyle = '#6B7280';
+      ctx.strokeStyle = '#2e282b';
+      ctx.fillStyle = '#a09098';
       ctx.font = '11px Inter';
       ctx.textAlign = 'right';
 
@@ -435,14 +435,14 @@ class Reports {
         ctx.fill();
 
         if (value > 0) {
-          ctx.fillStyle = '#111827';
+          ctx.fillStyle = '#f5f0f2';
           ctx.font = 'bold 11px Inter';
           ctx.textAlign = 'center';
           ctx.fillText('$' + Math.round(value), x + barWidth / 2, y - 8);
         }
       });
 
-      ctx.fillStyle = '#374151';
+      ctx.fillStyle = '#beb6b9';
       ctx.font = '11px Inter';
       ctx.textAlign = 'center';
       labels.forEach((label, i) => {
@@ -451,7 +451,7 @@ class Reports {
       });
 
       if (hoverIndex >= 0 && hoverIndex < data.length && data[hoverIndex] > 0) {
-        ctx.fillStyle = '#111827';
+        ctx.fillStyle = '#f5f0f2';
         ctx.font = 'bold 12px Inter';
         ctx.textAlign = 'left';
         ctx.fillText(`${labels[hoverIndex]}: $${Math.round(data[hoverIndex])}`, padding.left, padding.top - 10);

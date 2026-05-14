@@ -3,6 +3,7 @@
 import state from '../js/state.js';
 import { escapeHtml } from '../utils/sanitizer.js';
 import { ROLES } from '../config/permissions.js';
+import { BRAND } from '../config/brandConfig.js';
 
 const ROLE_LABELS = {
   [ROLES.ADMIN]: 'Administrador',
@@ -32,12 +33,15 @@ class Header {
         <button class="btn btn-ghost btn-icon" id="mobile-menu-btn" style="${isCashier ? 'display:block;' : 'display:none;'}">
           <i class="fa-solid fa-bars"></i>
         </button>
-        <div class="header-search">
-          <span class="header-search__icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-          <input type="text" class="header-search__input" placeholder="Buscar productos, clientes...">
+        <div class="header-brand">
+          <img src="${BRAND.logoSmall}" alt="${BRAND.name}" height="28">
+          <span>${BRAND.name}</span>
         </div>
       </div>
       <div class="header-right">
+        <button class="pos-cash-btn" id="pos-cash-btn" title="Gesti\u00f3n de Caja" aria-label="Gesti\u00f3n de Caja" style="display:none">
+          <i class="fa-solid fa-cash-register"></i>
+        </button>
         <div class="alerts-btn-wrapper">
           <button class="alerts-btn" id="header-alerts-btn" title="Alertas">
             <i class="fa-solid fa-bell"></i>
@@ -51,9 +55,27 @@ class Header {
             <div id="header-alerts-content"></div>
           </div>
         </div>
-        <span style="font-size:var(--text-sm);color:var(--color-text-secondary);">
-          ${user ? escapeHtml(user.name) : ''} <span style="color:var(--color-text-muted);font-size:var(--text-xs);">${user ? getRoleLabel(user.role) : ''}</span>
-        </span>
+        <div class="user-btn-wrapper">
+          <button class="user-btn" id="header-user-btn" title="Usuario">
+            <i class="fa-solid fa-user"></i>
+          </button>
+          <div class="user-popover" id="header-user-popover">
+            <div class="user-popover__header">
+              <div class="user-popover__avatar">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div>
+                <div class="user-popover__name">${user ? escapeHtml(user.name) : ''}</div>
+                <div class="user-popover__role">${user ? getRoleLabel(user.role) : ''}</div>
+              </div>
+            </div>
+            <div class="user-popover__body">
+              <button class="user-popover__btn user-popover__btn--logout" id="header-logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesi\u00f3n
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -103,6 +125,7 @@ class Header {
     });
 
     this._initAlertsPopover();
+    this._initUserPopover();
     this.updateToggleIcon();
   }
 
@@ -116,6 +139,7 @@ class Header {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       popover.classList.toggle('active');
+      document.getElementById('header-user-popover')?.classList.remove('active');
     });
 
     document.addEventListener('click', e => {
@@ -123,6 +147,37 @@ class Header {
         popover.classList.remove('active');
       }
     });
+  }
+
+  _initUserPopover() {
+    const btn = document.getElementById('header-user-btn');
+    const popover = document.getElementById('header-user-popover');
+    const logoutBtn = document.getElementById('header-logout-btn');
+    if (!btn || !popover) {
+      return;
+    }
+
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      popover.classList.toggle('active');
+      document.getElementById('header-alerts-popover')?.classList.remove('active');
+    });
+
+    document.addEventListener('click', e => {
+      if (popover && !popover.contains(e.target) && e.target !== btn) {
+        popover.classList.remove('active');
+      }
+    });
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        if (!window.confirm('\u00bfEst\u00e1s seguro de cerrar sesi\u00f3n?')) {
+          return;
+        }
+        state.clearSession();
+        window.location.reload();
+      });
+    }
   }
 
   updateToggleIcon() {

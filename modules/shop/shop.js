@@ -6,6 +6,7 @@ import ShopUI from './shopUI.js';
 import ShopCheckout from './shopCheckout.js';
 import { escapeHtml } from '../../utils/sanitizer.js';
 import { logger } from '../../utils/logger.js';
+import { BRAND } from '../../config/brandConfig.js';
 
 class Shop {
   constructor() {
@@ -77,6 +78,51 @@ class Shop {
     }
   }
 
+  updateSEO() {
+    const businessName = this.settings?.businessName || BRAND.name;
+    document.title = `${businessName} - Pedí online`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.content = `Pedí en ${businessName} | Hamburguesas premium y más`;
+    }
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.content = `${businessName} - Pedí online`;
+    }
+  }
+
+  render() {
+    const container = document.getElementById('shop-content');
+    if (!container) {
+      return;
+    }
+
+    const businessName = this.settings?.businessName || 'Vice Burgers';
+
+    container.innerHTML = `
+      <div class="shop-container">
+        ${ShopUI.renderHomeHeader(businessName, this.settings)}
+        <div class="shop-search-container">
+          <div class="shop-search-box">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" class="shop-search-input" id="shop-search" placeholder="Buscar en el menú..." autocomplete="off">
+          </div>
+        </div>
+        <div class="shop-categories" id="shop-categories">
+          <button class="shop-category-pill active" data-category-id="all">Todos</button>
+          ${this.categories
+            .map(cat => ShopUI.renderCategoryPill(cat, false))
+            .join('')}
+        </div>
+        <div class="shop-products-grid" id="shop-products">
+          ${this.getFilteredProducts().map(p => ShopUI.renderProductCard(p, this.categories)).join('')}
+        </div>
+      </div>
+    `;
+
+    this.setupEvents();
+  }
+
   getFilteredProducts() {
     let products = this.products;
 
@@ -90,6 +136,12 @@ class Shop {
         p => p.name.toLowerCase().includes(query) || (p.description && p.description.toLowerCase().includes(query))
       );
     }
+
+    products.sort((a, b) => {
+      if (a.categoryId === 'cat_1' && b.categoryId !== 'cat_1') return -1;
+      if (a.categoryId !== 'cat_1' && b.categoryId === 'cat_1') return 1;
+      return 0;
+    });
 
     return products;
   }
@@ -161,6 +213,7 @@ class Shop {
 
         ShopCart.addItem(product);
         this.updateCartButton();
+        this.animateCartWobble();
         this.showToast('Producto agregado', 'success');
         this.animateAddButton(addBtn);
       }
@@ -184,11 +237,22 @@ class Shop {
   }
 
   updateCartButton() {
+    ShopCheckout._updateCartButton();
+  }
+
+  animateCartWobble() {
     const btn = document.getElementById('shop-cart-button');
-    if (btn) {
-      btn.outerHTML = ShopUI.renderCartButton();
-      ShopCheckout.setupCartButton();
+    if (!btn) {
+      return;
     }
+    btn.classList.add('wobble');
+    btn.addEventListener(
+      'animationend',
+      () => {
+        btn.classList.remove('wobble');
+      },
+      { once: true }
+    );
   }
 
   updateProducts() {

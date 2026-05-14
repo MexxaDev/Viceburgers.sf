@@ -2,60 +2,80 @@
 
 import { settingRepo } from '../../db/repositories.js';
 import { logger } from '../../utils/logger.js';
+import { BRAND } from '../../config/brandConfig.js';
+
+var SEP = '=';
+var BULLET = '\u2022';
 
 class ShopWhatsApp {
   async buildMessage(data, items, settings) {
-    const businessName = settings.businessName || 'Mi Negocio';
-    const whatsappNumber = settings.shop_whatsapp || '';
+    var businessName = settings.businessName || BRAND.name;
+    var whatsappNumber = settings.shop_whatsapp || '';
 
     if (!whatsappNumber) {
       throw new Error('No se configuro el numero de WhatsApp');
     }
 
-    let message = 'Hola, quiero realizar un pedido.\n\n';
-    message += 'Nombre: ' + data.firstName + ' ' + data.lastName + '\n';
-    message += 'Telefono: ' + data.phone + '\n';
-    message += 'Tipo: ' + (data.orderType === 'delivery' ? 'Delivery' : 'Take Away') + '\n';
-
-    if (data.orderType === 'delivery') {
-      message += '\nDireccion: ' + data.address + '\n';
-      if (data.neighborhood) {
-        message += 'Barrio: ' + data.neighborhood + '\n';
-      }
-      if (data.addressRef) {
-        message += 'Referencia: ' + data.addressRef + '\n';
-      }
+    var line = '';
+    for (var l = 0; l < 30; l++) {
+      line += SEP;
     }
 
-    message += '\nPedido:\n';
-    var self = this;
-    items.forEach(function (item) {
-      var itemTotal = item.price * item.quantity;
-      message += '- ' + item.name + ' x' + item.quantity + ' - $' + self.formatPrice(itemTotal) + '\n';
-      if (item.note) {
-        message += '  (' + item.note + ')\n';
+    var msg = '';
+    msg += '*NUEVO PEDIDO \u2014 ' + businessName.toUpperCase() + '*\n';
+    msg += line + '\n\n';
+
+    msg += '*Cliente:*\n' + data.firstName + ' ' + data.lastName + '\n';
+    msg += '*Tel\u00E9fono:* ' + data.phone + '\n';
+    msg += '*Tipo:* ' + (data.orderType === 'delivery' ? 'Delivery' : 'Take Away') + '\n\n';
+
+    if (data.orderType === 'delivery') {
+      msg += '*Direcci\u00F3n de Entrega:*\n';
+      msg += data.address + '\n';
+      if (data.neighborhood) {
+        msg += 'Barrio: ' + data.neighborhood + '\n';
       }
-    });
+      if (data.addressRef) {
+        msg += 'Ref: ' + data.addressRef + '\n';
+      }
+      msg += '\n';
+    }
+
+    msg += '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
+    msg += '*PEDIDO:*\n';
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var total = item.price * item.quantity;
+      msg += BULLET + ' ' + item.name + ' x' + item.quantity + ' \u2014 ' + this._formatPrice(total) + '\n';
+      if (item.note) {
+        msg += '  _Nota: ' + item.note + '_\n';
+      }
+    }
 
     var subtotal = items.reduce(function (t, i) {
       return t + i.price * i.quantity;
     }, 0);
-    message += '\nSubtotal: $' + this.formatPrice(subtotal) + '\n';
+    msg += '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
+    msg += '*SUBTOTAL:* ' + this._formatPrice(subtotal) + '\n\n';
 
     if (data.generalNote) {
-      message += '\nNota:\n' + data.generalNote + '\n';
+      msg += '*Observaciones:*\n' + data.generalNote + '\n\n';
     }
 
-    message += '\nGracias.';
+    msg += line + '\n';
+    msg += '*TOTAL: ' + this._formatPrice(subtotal) + '*\n';
+    msg += line + '\n\n';
+    msg += 'Gracias por elegir ' + businessName + ' \u263A';
 
     return {
-      message: message,
+      message: msg,
       whatsappNumber: whatsappNumber
     };
   }
 
-  formatPrice(price) {
-    return price.toLocaleString('es-AR');
+  _formatPrice(price) {
+    return '$' + price.toLocaleString('es-AR');
   }
 
   openWhatsApp(messageText, phoneNumber) {

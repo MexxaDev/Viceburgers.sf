@@ -21,6 +21,7 @@ import Notification from '../components/notification.js';
 import { hashPassword } from '../utils/hash.js';
 import { logger } from '../utils/logger.js';
 import { getDefaultRoute } from '../config/permissions.js';
+import { BRAND, getBrandLogo } from '../config/brandConfig.js';
 
 async function seedDatabase() {
   try {
@@ -45,15 +46,13 @@ async function seedDatabase() {
       logger.info('App', 'Seed data loaded');
     } else {
       const products = await productRepo.findAll();
-      if (products.length < seedData.products.length) {
-        for (const product of seedData.products) {
-          const existing = products.find(p => p.id === product.id);
-          if (!existing) {
-            await productRepo.create(product);
-          }
+      for (const product of seedData.products) {
+        const existing = products.find(p => p.id === product.id);
+        if (!existing) {
+          await productRepo.create(product);
         }
-        logger.info('App', 'Additional products seeded');
       }
+      logger.info('App', 'Seed products synced');
 
       const settings = await settingRepo.findAll();
       const settingsMap = {};
@@ -67,8 +66,38 @@ async function seedDatabase() {
         }
       }
     }
+
+    await _removeDeprecatedProducts();
   } catch (error) {
     logger.error('App', 'Error seeding database', error);
+  }
+}
+
+async function _removeDeprecatedProducts() {
+  const deprecatedIds = ['prod_11', 'prod_12', 'prod_13', 'prod_14', 'prod_15'];
+  for (const id of deprecatedIds) {
+    try {
+      const existing = await productRepo.findById(id);
+      if (existing) {
+        await productRepo.delete(id);
+        logger.info('App', 'Removed deprecated product: ' + id);
+      }
+    } catch (e) {
+      /* product may not exist, skip */
+    }
+  }
+}
+
+async function _migrateWhatsAppNumber() {
+  try {
+    const setting = await settingRepo.findById('shop_whatsapp');
+    if (setting && setting.value !== '5493496655404') {
+      setting.value = '5493496655404';
+      await settingRepo.update(setting);
+      logger.info('App', 'WhatsApp number migrated to 5493496655404');
+    }
+  } catch (e) {
+    /* setting may not exist or migration already done */
   }
 }
 
@@ -97,11 +126,11 @@ function initLogin() {
     return;
   }
 
-  loginScreen.innerHTML = `
+      loginScreen.innerHTML = `
     <div class="login-card">
       <div class="login-header">
-        <div class="login-logo">P</div>
-        <h1 class="login-title">POS Premium</h1>
+        <div class="login-logo">${getBrandLogo()}</div>
+        <h1 class="login-title">${BRAND.name}</h1>
         <p class="login-subtitle">Ingresá tus credenciales</p>
       </div>
       <form class="login-form" id="login-form">
@@ -351,7 +380,7 @@ async function loadModule(route) {
 
 async function loadSettings() {
   const defaultSettings = [
-    { key: 'businessName', value: 'Mi Negocio' },
+    { key: 'businessName', value: 'Vice Burgers' },
     { key: 'currency', value: 'ARS' },
     { key: 'currencySymbol', value: '$' },
     { key: 'ticketFooter', value: 'Gracias por su compra!' },
@@ -387,6 +416,7 @@ async function loadSettings() {
   try {
     await db.init();
     await seedDatabase();
+    await _migrateWhatsAppNumber();
 
     const hash = window.location.hash.slice(1);
 

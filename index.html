@@ -3,18 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>POS Premium - Sistema de Gestion</title>
-    <meta name="description" content="Sistema de gestión POS Premium para tu negocio" />
-    <meta name="theme-color" content="#7c3aed" />
+    <title>Vice Burgers - Sistema de Gestión</title>
+    <meta name="description" content="Vice Burgers - Sistema de gestión premium para tu negocio" />
+    <meta name="theme-color" content="#060405" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta property="og:title" content="POS Premium - Sistema de Gestión" />
-    <meta property="og:description" content="Gestioná tu negocio con el sistema más moderno" />
+    <meta property="og:title" content="Vice Burgers - Sistema de Gestión" />
+    <meta property="og:description" content="Sistema de gestión para Vice Burgers" />
     <meta property="og:type" content="website" />
 
     <link rel="manifest" href="manifest.json" />
-    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
-    <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+    <link rel="icon" type="image/png" href="icons/logo%20vice.png" />
+    <link rel="apple-touch-icon" href="icons/logo%20vice.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -22,6 +22,8 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
     <link rel="stylesheet" href="css/variables.css" />
     <link rel="stylesheet" href="css/base.css" />
@@ -111,6 +113,8 @@
                   <span>Total:</span>
                   <span class="pos-total-value" id="cart-total">$0.00</span>
                 </div>
+
+                <div id="pos-order-type-container"></div>
 
                 <div id="payment-ui-container"></div>
 

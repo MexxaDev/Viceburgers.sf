@@ -4,6 +4,7 @@ import router from '../js/router.js';
 import state from '../js/state.js';
 import { escapeHtml } from '../utils/sanitizer.js';
 import { getMenuForRole } from '../config/permissions.js';
+import { BRAND, getBrandLogo } from '../config/brandConfig.js';
 
 class Sidebar {
   constructor() {
@@ -24,8 +25,8 @@ class Sidebar {
 
     return `
       <div class="sidebar-header">
-        <div class="sidebar-logo">P</div>
-        <span class="sidebar-brand">POS Premium</span>
+        <div class="sidebar-logo">${getBrandLogo()}</div>
+        <span class="sidebar-brand">${BRAND.name}</span>
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">

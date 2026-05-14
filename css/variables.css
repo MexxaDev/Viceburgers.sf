@@ -1,57 +1,71 @@
 /* =============================================
-   DESIGN TOKENS - POS Premium System
+   DESIGN TOKENS — VICE MODE
+   Paleta: rosa #e13a7a · cyan #1897b1 · negro #060405
    ============================================= */
 
 :root {
-  /* ===== COLOR PALETTE - Premium Violet ===== */
-  --color-primary: #7c3aed;
-  --color-primary-light: #a78bfa;
-  --color-primary-lighter: #c4b5fd;
-  --color-primary-dark: #5b21b6;
-  --color-primary-darker: #4c1d95;
-  --color-primary-50: #f5f3ff;
-  --color-primary-100: #ede9fe;
-  --color-primary-200: #ddd6fe;
+  /* ===== COLOR PALETTE — VICE Pink ===== */
+  --color-primary: #e13a7a;
+  --color-primary-light: #f06292;
+  --color-primary-lighter: #f48fb1;
+  --color-primary-dark: #c62860;
+  --color-primary-darker: #a01e4a;
+  --color-primary-50: rgba(225, 58, 122, 0.08);
+  --color-primary-100: rgba(225, 58, 122, 0.15);
+  --color-primary-200: rgba(225, 58, 122, 0.25);
 
-  /* Neutral Palette */
+  /* ===== COLOR PALETTE — VICE Cyan (secondary) ===== */
+  --color-secondary: #1897b1;
+  --color-secondary-light: #4db6c9;
+  --color-secondary-lighter: #80cbd9;
+  --color-secondary-dark: #0e6b7e;
+  --color-secondary-darker: #064353;
+  --color-secondary-50: rgba(24, 151, 177, 0.08);
+  --color-secondary-100: rgba(24, 151, 177, 0.15);
+  --color-secondary-200: rgba(24, 151, 177, 0.25);
+
+  /* Neutral Palette (dark-adapted) */
   --color-white: #ffffff;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+  --color-black: #000000;
+  --color-gray-50: #1a1618;
+  --color-gray-100: #221e20;
+  --color-gray-200: #2e282b;
+  --color-gray-300: #3d3639;
+  --color-gray-400: #5e5659;
+  --color-gray-500: #7e7679;
+  --color-gray-600: #9e9699;
+  --color-gray-700: #beb6b9;
+  --color-gray-800: #ded6d9;
+  --color-gray-900: #f5f0f2;
 
-  /* Semantic Colors */
-  --color-success: #10b981;
-  --color-success-light: #d1fae5;
-  --color-success-dark: #047857;
-  --color-danger: #ef4444;
-  --color-danger-light: #fee2e2;
-  --color-danger-dark: #dc2626;
-  --color-danger-darker: #b91c1c;
-  --color-warning: #f59e0b;
-  --color-warning-light: #fef3c7;
-  --color-warning-dark: #b45309;
-  --color-info: #3b82f6;
-  --color-info-light: #dbeafe;
-  --color-info-dark: #1e40af;
+  /* Semantic Colors (dark-adapted) */
+  --color-success: #34d399;
+  --color-success-light: rgba(52, 211, 153, 0.15);
+  --color-success-dark: #6ee7b7;
+  --color-danger: #f87171;
+  --color-danger-light: rgba(248, 113, 113, 0.15);
+  --color-danger-dark: #fca5a5;
+  --color-danger-darker: #fecaca;
+  --color-warning: #fbbf24;
+  --color-warning-light: rgba(251, 191, 36, 0.15);
+  --color-warning-dark: #fcd34d;
+  --color-info: #60a5fa;
+  --color-info-light: rgba(96, 165, 250, 0.15);
+  --color-info-dark: #93c5fd;
 
   /* Background & Surface */
-  --color-bg: var(--color-gray-50);
-  --color-surface: var(--color-white);
-  --color-surface-hover: var(--color-gray-50);
-  --color-border: var(--color-gray-200);
-  --color-border-light: var(--color-gray-100);
+  --color-bg: #060405;
+  --color-surface: #0d0a0c;
+  --color-surface-hover: #161113;
+  --color-surface-active: #1f191b;
+  --color-border: rgba(225, 58, 122, 0.15);
+  --color-border-light: rgba(225, 58, 122, 0.08);
+  --color-border-hover: rgba(225, 58, 122, 0.25);
 
   /* Text */
-  --color-text: var(--color-gray-900);
-  --color-text-secondary: var(--color-gray-500);
-  --color-text-muted: var(--color-gray-400);
+  --color-text: #f5f0f2;
+  --color-text-secondary: #a09098;
+  --color-text-muted: #6b5b63;
 
   /* ===== SPACING SCALE ===== */
   --space-0: 0;
@@ -105,13 +119,19 @@
   --radius-3xl: 24px;
   --radius-full: 9999px;
 
-  /* ===== SHADOWS ===== */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  /* ===== SHADOWS — dark-adapted with VICE tint ===== */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(225, 58, 122, 0.04);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(225, 58, 122, 0.06);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(225, 58, 122, 0.08);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5), 0 8px 10px rgba(225, 58, 122, 0.1);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.5);
+
+  /* ===== GLOW EFFECTS ===== */
+  --glow-primary: 0 0 20px rgba(225, 58, 122, 0.3);
+  --glow-secondary: 0 0 20px rgba(24, 151, 177, 0.3);
+  --glow-primary-sm: 0 0 10px rgba(225, 58, 122, 0.2);
+  --glow-secondary-sm: 0 0 10px rgba(24, 151, 177, 0.2);
 
   /* ===== LAYOUT DIMENSIONS ===== */
   --sidebar-width: 280px;

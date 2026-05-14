@@ -95,7 +95,7 @@ class Categories {
 
     const safeName = category ? escapeHtml(category.name) : '';
     const safeDesc = category ? escapeHtml(category.description) : '';
-    const safeColor = category ? escapeHtml(category.color) : '#7C3AED';
+    const safeColor = category ? escapeHtml(category.color) : '#e13a7a';
 
     const body = `
       <div class="form-group">

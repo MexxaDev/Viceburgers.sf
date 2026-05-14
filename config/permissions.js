@@ -7,16 +7,16 @@ export const ROLES = {
 };
 
 export const ROUTE_PERMISSIONS = {
-  dashboard:     [ROLES.ADMIN, ROLES.SUPERVISOR],
-  pos:           [ROLES.ADMIN, ROLES.CAJERO],
-  products:      [ROLES.ADMIN, ROLES.CAJERO],
-  categories:    [ROLES.ADMIN],
-  customers:     [ROLES.ADMIN, ROLES.CAJERO],
-  sales:         [ROLES.ADMIN, ROLES.SUPERVISOR, ROLES.CAJERO],
-  cash:          [ROLES.ADMIN, ROLES.SUPERVISOR, ROLES.CAJERO],
-  reports:       [ROLES.ADMIN, ROLES.SUPERVISOR],
+  dashboard: [ROLES.ADMIN, ROLES.SUPERVISOR],
+  pos: [ROLES.ADMIN, ROLES.CAJERO],
+  products: [ROLES.ADMIN, ROLES.CAJERO],
+  categories: [ROLES.ADMIN],
+  customers: [ROLES.ADMIN],
+  sales: [ROLES.ADMIN, ROLES.SUPERVISOR, ROLES.CAJERO],
+  cash: [ROLES.ADMIN, ROLES.SUPERVISOR, ROLES.CAJERO],
+  reports: [ROLES.ADMIN, ROLES.SUPERVISOR],
   'burger-stock': [ROLES.ADMIN, ROLES.SUPERVISOR, ROLES.CAJERO],
-  settings:      [ROLES.ADMIN]
+  settings: [ROLES.ADMIN]
 };
 
 export const DEFAULT_ROUTES = {
@@ -47,11 +47,10 @@ export const MENU_ITEMS = {
   ],
   [ROLES.CAJERO]: [
     { route: 'pos', icon: 'fa-cash-register', label: 'POS' },
-    { route: 'sales', icon: 'fa-money-bill', label: 'Ventas' },
-    { route: 'customers', icon: 'fa-users', label: 'Clientes' },
-    { route: 'burger-stock', icon: 'fa-burger', label: 'Reportes Burgers' },
+    { route: 'cash', icon: 'fa-money-bill-wave', label: 'Caja' },
     { route: 'products', icon: 'fa-box', label: 'Productos' },
-    { route: 'cash', icon: 'fa-money-bill-wave', label: 'Caja' }
+    { route: 'sales', icon: 'fa-money-bill', label: 'Ventas' },
+    { route: 'burger-stock', icon: 'fa-burger', label: 'Reportes Burgers' }
   ]
 };
 

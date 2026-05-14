@@ -117,7 +117,7 @@ class Settings {
           </div>
           <div class="form-group">
             <label class="form-label">Color Primario</label>
-            <input type="color" class="form-input" id="setting-shop-color" value="${this.settings.shop_primary_color || '#7C3AED'}">
+            <input type="color" class="form-input" id="setting-shop-color" value="${this.settings.shop_primary_color || '#e13a7a'}">
           </div>
         </div>
 
@@ -780,7 +780,7 @@ class Settings {
 
     const shopEnabled = document.getElementById('setting-shop-enabled')?.checked || false;
     const shopWhatsapp = document.getElementById('setting-shop-whatsapp')?.value || '';
-    const shopColor = document.getElementById('setting-shop-color')?.value || '#7C3AED';
+    const shopColor = document.getElementById('setting-shop-color')?.value || '#e13a7a';
     const shopOpen = document.getElementById('setting-shop-open')?.value || '09:00';
     const shopClose = document.getElementById('setting-shop-close')?.value || '23:00';
     const shopTakeaway = document.getElementById('setting-shop-takeaway')?.checked || false;
@@ -844,14 +844,14 @@ class Settings {
 
   async resetToDefaults() {
     const defaults = [
-      { key: 'businessName', value: 'Mi Negocio' },
+      { key: 'businessName', value: 'Vice Burgers' },
       { key: 'currency', value: 'ARS' },
       { key: 'currencySymbol', value: '$' },
       { key: 'ticketFooter', value: 'Gracias por su compra!' },
       { key: 'logo', value: '' },
       { key: 'shop_enabled', value: 'false' },
       { key: 'shop_whatsapp', value: '' },
-      { key: 'shop_primary_color', value: '#7C3AED' },
+      { key: 'shop_primary_color', value: '#e13a7a' },
       { key: 'shop_hours_open', value: '09:00' },
       { key: 'shop_hours_close', value: '23:00' },
       { key: 'shop_takeaway_enabled', value: 'true' },

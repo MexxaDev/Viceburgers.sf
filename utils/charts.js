@@ -16,8 +16,8 @@ export function drawBarChart(ctx, labels, data, colors) {
 
   ctx.clearRect(0, 0, width, height);
 
-  ctx.strokeStyle = '#E5E7EB';
-  ctx.fillStyle = '#6B7280';
+  ctx.strokeStyle = '#2e282b';
+  ctx.fillStyle = '#a09098';
   ctx.font = '11px Inter';
   ctx.textAlign = 'right';
 
@@ -49,7 +49,7 @@ export function drawBarChart(ctx, labels, data, colors) {
     ctx.fill();
 
     if (value > 0) {
-      ctx.fillStyle = '#374151';
+      ctx.fillStyle = '#beb6b9';
       ctx.font = '10px Inter';
       ctx.textAlign = 'center';
       ctx.fillText(labels[i], x + barWidth / 2, height - padding.bottom + 15);
@@ -75,7 +75,7 @@ export function drawDoughnutChart(ctx, labels, data, colors, currencySymbol) {
   ctx.clearRect(0, 0, width, height);
 
   if (total === 0) {
-    ctx.fillStyle = '#6B7280';
+    ctx.fillStyle = '#a09098';
     ctx.font = '14px Inter';
     ctx.textAlign = 'center';
     ctx.fillText('No hay datos', centerX, centerY);
@@ -109,12 +109,12 @@ export function drawDoughnutChart(ctx, labels, data, colors, currencySymbol) {
     currentAngle += sliceAngle;
   });
 
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = '#0d0a0c';
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius * 0.5, 0, 2 * Math.PI);
   ctx.fill();
 
-  ctx.fillStyle = '#111827';
+  ctx.fillStyle = '#f5f0f2';
   ctx.font = 'bold 16px Inter';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -126,7 +126,7 @@ export function drawDoughnutChart(ctx, labels, data, colors, currencySymbol) {
   labels.forEach((label, i) => {
     ctx.fillStyle = colors[i % colors.length];
     ctx.fillRect(legendX, legendY, 10, 10);
-    ctx.fillStyle = '#374151';
+    ctx.fillStyle = '#beb6b9';
     ctx.font = '10px Inter';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
@@ -153,7 +153,7 @@ export function drawPieChart(ctx, labels, data, colors, currencySymbol) {
   ctx.clearRect(0, 0, width, height);
 
   if (total === 0) {
-    ctx.fillStyle = '#6B7280';
+    ctx.fillStyle = '#a09098';
     ctx.font = '14px Inter';
     ctx.textAlign = 'center';
     ctx.fillText('No hay datos', centerX, centerY);
@@ -163,7 +163,7 @@ export function drawPieChart(ctx, labels, data, colors, currencySymbol) {
   let currentAngle = -Math.PI / 2;
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.08)';
+  ctx.shadowColor = 'rgba(225, 58, 122, 0.2)';
   ctx.shadowBlur = 12;
   ctx.shadowOffsetY = 4;
 
@@ -204,24 +204,24 @@ export function drawPieChart(ctx, labels, data, colors, currencySymbol) {
   });
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.06)';
+  ctx.shadowColor = 'rgba(225, 58, 122, 0.15)';
   ctx.shadowBlur = 8;
   ctx.shadowOffsetY = 2;
 
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = '#0d0a0c';
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius * 0.5, 0, 2 * Math.PI);
   ctx.fill();
 
   ctx.restore();
 
-  ctx.fillStyle = '#111827';
+  ctx.fillStyle = '#f5f0f2';
   ctx.font = 'bold 18px Inter';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(sym + Math.round(total), centerX, centerY - 8);
 
-  ctx.fillStyle = '#6B7280';
+  ctx.fillStyle = '#a09098';
   ctx.font = '11px Inter';
   ctx.fillText('Total', centerX, centerY + 16);
 
@@ -238,13 +238,13 @@ export function drawPieChart(ctx, labels, data, colors, currencySymbol) {
     ctx.arc(legendX + 6, y + 6, 6, 0, 2 * Math.PI);
     ctx.fill();
 
-    ctx.fillStyle = '#374151';
+    ctx.fillStyle = '#beb6b9';
     ctx.font = '12px Inter';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, legendX + 18, y + 6);
 
-    ctx.fillStyle = '#6B7280';
+    ctx.fillStyle = '#a09098';
     ctx.font = '11px Inter';
     ctx.textAlign = 'right';
     ctx.fillText(pct + '%  ' + amount, width - 20, y + 6);
@@ -260,11 +260,7 @@ export function setupChartResize(canvas, drawFn) {
     if (rafId) {
       cancelAnimationFrame(rafId);
     }
-    rafId = requestAnimationFrame(() => {
-      drawFn();
-      rafId = null;
-    });
+    rafId = requestAnimationFrame(() => drawFn());
   });
   observer.observe(canvas);
-  return () => observer.disconnect();
 }
