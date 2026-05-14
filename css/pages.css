@@ -1632,6 +1632,7 @@
   padding: 0 var(--space-4);
   font-size: var(--text-base);
   background: var(--color-surface);
+  color: var(--color-text);
   transition: border-color var(--transition-fast);
   width: 100%;
 }

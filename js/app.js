@@ -101,6 +101,19 @@ async function _migrateWhatsAppNumber() {
   }
 }
 
+async function _migrateCajeroPassword() {
+  try {
+    const user = await userRepo.findById('user_2');
+    if (user && user.password !== 'cajero123') {
+      user.password = await hashPassword('cajero123');
+      await userRepo.update(user);
+      logger.info('App', 'Cajero password migrated');
+    }
+  } catch (e) {
+    /* user may not exist or migration already done */
+  }
+}
+
 function initLogin() {
   const loginScreen = document.getElementById('login-screen');
   const appContainer = document.getElementById('app');
@@ -417,6 +430,7 @@ async function loadSettings() {
     await db.init();
     await seedDatabase();
     await _migrateWhatsAppNumber();
+    await _migrateCajeroPassword();
 
     const hash = window.location.hash.slice(1);
 
