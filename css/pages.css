@@ -1057,6 +1057,53 @@
   color: var(--color-white);
 }
 
+/* ===== SALES KPI ===== */
+.sales-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .sales-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sales-kpi-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sales-kpi-card__label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sales-kpi-card__value {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  font-family: var(--font-mono);
+  color: var(--color-text);
+}
+
+.sales-kpi-card--cash .sales-kpi-card__value {
+  color: var(--color-success);
+}
+
+.sales-kpi-card--transfer .sales-kpi-card__value {
+  color: var(--color-info);
+}
+
 /* ===== PRODUCTS PAGE ===== */
 .products-toolbar {
   display: flex;
