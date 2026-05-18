@@ -114,6 +114,43 @@ async function _migrateCajeroPassword() {
   }
 }
 
+async function _syncSeedProducts() {
+  try {
+    const response = await fetch('./data/seed.json');
+    const seedData = await response.json();
+    const products = await productRepo.findAll();
+
+    for (const seedProduct of seedData.products) {
+      const existing = products.find(p => p.id === seedProduct.id);
+      if (existing) {
+        let changed = false;
+        if (existing.name !== seedProduct.name) {
+          existing.name = seedProduct.name;
+          changed = true;
+        }
+        if (existing.price !== seedProduct.price) {
+          existing.price = seedProduct.price;
+          changed = true;
+        }
+        if (existing.visible_web !== seedProduct.visible_web) {
+          existing.visible_web = seedProduct.visible_web;
+          changed = true;
+        }
+        if (existing.stock !== seedProduct.stock) {
+          existing.stock = seedProduct.stock;
+          changed = true;
+        }
+        if (changed) {
+          await productRepo.update(existing);
+          logger.info('App', `Synced product ${seedProduct.id}: ${seedProduct.name}`);
+        }
+      }
+    }
+  } catch (error) {
+    logger.error('App', 'Error syncing seed products', error);
+  }
+}
+
 function initLogin() {
   const loginScreen = document.getElementById('login-screen');
   const appContainer = document.getElementById('app');
@@ -429,6 +466,7 @@ async function loadSettings() {
   try {
     await db.init();
     await seedDatabase();
+    await _syncSeedProducts();
     await _migrateWhatsAppNumber();
     await _migrateCajeroPassword();
 

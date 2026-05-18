@@ -21,6 +21,10 @@ const ALIAS_MAP = {
   'baconcheesedoble': 'cheesebacon.png',
   'baconahumado': 'bacon haumado.png',
   'latasantafe': 'Lata Santa Fe Pilsen.png',
+  'lataamstel': 'Lata Santa Fe Pilsen.png',
+  'cocacolalata': 'Coca-Cola 500.png',
+  'sprite500lata': 'Coca-Cola 500 Zero.png',
+  'aguamineral': 'logo vice.png',
   'medallonadicional': 'logo vice.png'
 };
 

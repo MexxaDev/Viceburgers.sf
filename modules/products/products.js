@@ -258,7 +258,7 @@ class Products {
         </div>
         <div class="form-group">
           <label class="form-label">Visible en Web (Shop)</label>
-          <input type="checkbox" id="prod-visible-web" ${product ? (product.visible_web ? 'checked' : '') : ''}>
+          <input type="checkbox" id="prod-visible-web" ${product ? (product.visible_web ? 'checked' : '') : 'checked'}>
         </div>
         <div class="form-group">
           <label class="form-label">Precio Web (opcional)</label>
