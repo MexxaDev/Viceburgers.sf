@@ -28,6 +28,14 @@ export async function exportCashToPDF(summary, movements, settings) {
   const margin = 20;
   const contentWidth = pageWidth - margin * 2;
 
+  const session = summary.session || {
+    id: summary.sessionId,
+    openedAt: summary.openedAt,
+    closedAt: summary.closedAt,
+    userName: summary.userName,
+    observation: summary.observation
+  };
+
   let y = margin;
 
   if (logo) {
@@ -66,7 +74,6 @@ export async function exportCashToPDF(summary, movements, settings) {
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(80);
 
-  const session = summary.session;
   const sessionLines = [
     `Sesión: ${session.id}`,
     `Apertura: ${new Date(session.openedAt).toLocaleString('es-AR')}`,

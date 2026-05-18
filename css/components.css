@@ -896,6 +896,149 @@
   color: var(--color-text-muted);
 }
 
+/* ===== CASH TABS ===== */
+.cash-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+}
+
+.cash-tab {
+  flex: 1;
+  padding: var(--space-3) var(--space-5);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.cash-tab:hover {
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+}
+
+.cash-tab.active {
+  color: var(--color-primary);
+  background: var(--color-primary-50);
+  font-weight: var(--font-semibold);
+}
+
+/* ===== CASH CLOSURES TABLE ===== */
+.cash-closures-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.cash-closures-table__header {
+  display: grid;
+  grid-template-columns: 1.6fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr 0.7fr;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cash-closures-table__row {
+  display: grid;
+  grid-template-columns: 1.6fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 0.5fr 0.7fr;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  align-items: center;
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-fast);
+}
+
+.cash-closures-table__row:hover {
+  background: var(--color-surface-hover);
+}
+
+.cash-closures-table__row:nth-child(even) {
+  background: var(--color-surface);
+}
+
+.cash-closures-table__row:nth-child(even):hover {
+  background: var(--color-surface-hover);
+}
+
+.cash-cell--date {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.cash-cell--amount {
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+.cash-cell--actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.cash-diff--ok {
+  color: var(--color-success);
+}
+
+.cash-diff--alert {
+  color: var(--color-danger);
+  font-weight: var(--font-semibold);
+}
+
+/* ===== CASH CLOSURE DETAIL ===== */
+.cash-closure-detail {
+  max-width: 500px;
+}
+
+.cash-closure-detail .cash-summary__row {
+  padding: var(--space-2) 0;
+}
+
+/* ===== RESPONSIVE CASH CLOSURES ===== */
+@media (max-width: 900px) {
+  .cash-closures-table__header,
+  .cash-closures-table__row {
+    grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.5fr 0.7fr;
+  }
+  .cash-closures-table__header span:nth-child(5),
+  .cash-closures-table__row span:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .cash-closures-table__header,
+  .cash-closures-table__row {
+    grid-template-columns: 1fr 0.8fr 0.5fr 0.7fr;
+  }
+  .cash-closures-table__header span:nth-child(3),
+  .cash-closures-table__header span:nth-child(4),
+  .cash-closures-table__header span:nth-child(6),
+  .cash-closures-table__row span:nth-child(3),
+  .cash-closures-table__row span:nth-child(4),
+  .cash-closures-table__row span:nth-child(6) {
+    display: none;
+  }
+}
+
 .settings-snapshot-item {
   display: flex;
   align-items: center;

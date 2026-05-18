@@ -51,6 +51,7 @@ export const saleRepo = new Repository('sales');
 export const saleItemRepo = new Repository('sale_items');
 export const cashSessionRepo = new Repository('cash_sessions');
 export const cashMovementRepo = new Repository('cash_movements');
+export const cashClosureRepo = new Repository('cash_closures');
 export const settingRepo = new Repository('settings');
 export const userRepo = new Repository('users');
 export const notificationRepo = new Repository('notifications');

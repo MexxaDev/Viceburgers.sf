@@ -1,6 +1,7 @@
 'use strict';
 
 import cashService from './cashService.js';
+import { cashClosureRepo } from '../../db/repositories.js';
 import { format } from '../../utils/currency.js';
 import Modal from '../../components/modal.js';
 import Toast from '../../components/toast.js';
@@ -28,17 +29,68 @@ class Cash {
     }
   }
 
-  render() {
+  render(tab = 'current') {
     const container = document.getElementById('cash-content');
     if (!container) {
       return;
     }
 
-    if (cashService.currentSession) {
-      this.renderOpenSession(container);
+    container.innerHTML = this._renderTabs(tab);
+
+    container.querySelectorAll('.cash-tab').forEach(tabEl => {
+      tabEl.addEventListener('click', () => {
+        const newTab = tabEl.dataset.cashTab;
+        this.render(newTab);
+      });
+    });
+
+    if (tab === 'current') {
+      this._renderCurrentTab();
     } else {
-      this.renderClosedSession(container);
+      this._renderHistoryTab();
     }
+  }
+
+  _renderTabs(activeTab) {
+    return `
+      <div class="cash-tabs">
+        <button class="cash-tab ${activeTab === 'current' ? 'active' : ''}" data-cash-tab="current">
+          <i class="fa-solid fa-cash-register"></i> Caja
+        </button>
+        <button class="cash-tab ${activeTab === 'history' ? 'active' : ''}" data-cash-tab="history">
+          <i class="fa-solid fa-clock-rotate-left"></i> Historial de Cierres
+        </button>
+      </div>
+      <div class="cash-tab-content" id="cash-tab-content"></div>
+    `;
+  }
+
+  _renderCurrentTab() {
+    const content = document.getElementById('cash-tab-content');
+    if (!content) {
+      return;
+    }
+
+    if (cashService.currentSession) {
+      this.renderOpenSession(content);
+    } else {
+      this._renderClosedState(content);
+    }
+  }
+
+  _renderClosedState(container) {
+    container.innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div class="card-body" style="padding:var(--space-10);">
+          <div style="font-size:64px;margin-bottom:var(--space-4);color:var(--color-text-muted);"><i class="fa-solid fa-cash-register"></i></div>
+          <h3 style="font-size:var(--text-xl);font-weight:var(--font-semibold);margin-bottom:var(--space-2);">Caja Cerrada</h3>
+          <p style="color:var(--color-text-secondary);margin-bottom:var(--space-6);max-width:400px;margin-left:auto;margin-right:auto;">No hay una sesión de caja abierta. Iniciá una nueva jornada para comenzar a operar.</p>
+          <button class="btn btn-primary btn-lg" id="open-session-btn"><i class="fa-solid fa-play"></i> Abrir Caja</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('open-session-btn')?.addEventListener('click', () => this.openSession());
   }
 
   async renderOpenSession(container) {
@@ -72,7 +124,7 @@ class Cash {
             <div class="cash-summary__row cash-summary__total"><span>Total Ventas</span><span>${format(s.totalSales)}</span></div>
             <div class="cash-summary__row cash-summary__expected"><span>Efectivo Esperado</span><span>${format(s.expectedTotal)}</span></div>
           </div>
-          <div style="display:flex;gap:var(--space-3);margin-top:var(--space-5);">
+          <div style="display:flex;gap:var(--space-3);margin-top:var(--space-5);flex-wrap:wrap;">
             <button class="btn btn-secondary" id="add-movement-in"><i class="fa-solid fa-plus"></i> Ingreso</button>
             <button class="btn btn-secondary" id="add-movement-out"><i class="fa-solid fa-minus"></i> Egreso</button>
             <button class="btn btn-secondary" id="export-pdf-btn"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</button>
@@ -133,19 +185,151 @@ class Cash {
     return html;
   }
 
-  renderClosedSession(container) {
-    container.innerHTML = `
-      <div class="card" style="text-align:center;">
-        <div class="card-body" style="padding:var(--space-10);">
-          <div style="font-size:64px;margin-bottom:var(--space-4);color:var(--color-text-muted);"><i class="fa-solid fa-cash-register"></i></div>
-          <h3 style="font-size:var(--text-xl);font-weight:var(--font-semibold);margin-bottom:var(--space-2);">Caja Cerrada</h3>
-          <p style="color:var(--color-text-secondary);margin-bottom:var(--space-6);max-width:400px;margin-left:auto;margin-right:auto;">No hay una sesión de caja abierta. Iniciá una nueva jornada para comenzar a operar.</p>
-          <button class="btn btn-primary btn-lg" id="open-session-btn"><i class="fa-solid fa-play"></i> Abrir Caja</button>
-        </div>
-      </div>
-    `;
+  async _renderHistoryTab() {
+    const content = document.getElementById('cash-tab-content');
+    if (!content) {
+      return;
+    }
 
-    document.getElementById('open-session-btn')?.addEventListener('click', () => this.openSession());
+    try {
+      const closures = await cashService.getClosures();
+      if (closures.length === 0) {
+        content.innerHTML = `
+          <div class="card" style="text-align:center;">
+            <div class="card-body" style="padding:var(--space-10);">
+              <div style="font-size:64px;margin-bottom:var(--space-4);color:var(--color-text-muted);"><i class="fa-solid fa-clock-rotate-left"></i></div>
+              <h3 style="font-size:var(--text-xl);font-weight:var(--font-semibold);margin-bottom:var(--space-2);">Sin cierres registrados</h3>
+              <p style="color:var(--color-text-secondary);margin-bottom:var(--space-6);max-width:400px;margin-left:auto;margin-right:auto;">Aún no hay cierres de caja registrados. Los cierres aparecerán aquí automáticamente.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Historial de Cierres</h3>
+            <p class="card-subtitle">${closures.length} cierre${closures.length !== 1 ? 's' : ''} registrado${closures.length !== 1 ? 's' : ''}</p>
+          </div>
+          <div class="card-body">
+            <div class="cash-closures-table">
+              <div class="cash-closures-table__header">
+                <span>Fecha Cierre</span>
+                <span>Responsable</span>
+                <span>Apertura</span>
+                <span>Esperado</span>
+                <span>Real</span>
+                <span>Diferencia</span>
+                <span>Ventas</span>
+                <span>Acción</span>
+              </div>
+              ${closures.map(c => {
+                const diffClass = Math.abs(c.difference) > 0.01 ? 'cash-diff--alert' : 'cash-diff--ok';
+                const diffSign = c.difference >= 0 ? '+' : '';
+                return `
+                  <div class="cash-closures-table__row">
+                    <span class="cash-cell--date">${new Date(c.closedAt).toLocaleString('es-AR')}</span>
+                    <span>${escapeHtml(c.userName || 'N/A')}</span>
+                    <span class="cash-cell--amount">${format(c.initialAmount)}</span>
+                    <span class="cash-cell--amount">${format(c.expectedTotal)}</span>
+                    <span class="cash-cell--amount">${format(c.finalAmount)}</span>
+                    <span class="cash-cell--amount ${diffClass}">${diffSign}${format(c.difference)}</span>
+                    <span class="cash-cell--amount">${c.salesCount || 0}</span>
+                    <span class="cash-cell--actions">
+                      <button class="btn btn-sm btn-secondary cash-history-detail" data-closure-id="${c.id}" title="Ver detalle">
+                        <i class="fa-solid fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-secondary cash-history-pdf" data-closure-id="${c.id}" title="Reimprimir PDF">
+                        <i class="fa-solid fa-file-pdf"></i>
+                      </button>
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      content.querySelectorAll('.cash-history-detail').forEach(btn => {
+        btn.addEventListener('click', () => this._showClosureDetail(btn.dataset.closureId));
+      });
+      content.querySelectorAll('.cash-history-pdf').forEach(btn => {
+        btn.addEventListener('click', () => this._reprintClosurePDF(btn.dataset.closureId));
+      });
+    } catch (error) {
+      logger.error('Cash', 'Error loading history', error);
+      content.innerHTML = '<p style="color:var(--color-danger);text-align:center;padding:var(--space-8);">Error al cargar historial de cierres.</p>';
+    }
+  }
+
+  async _showClosureDetail(closureId) {
+    try {
+      const closure = await cashClosureRepo.findById(closureId);
+      if (!closure) {
+        Toast.error('Error', 'Cierre no encontrado');
+        return;
+      }
+
+      const body = `
+        <div class="cash-closure-detail">
+          <div class="cash-summary__header">
+            <div><span class="cash-summary__label">Apertura</span><span class="cash-summary__value">${new Date(closure.openedAt).toLocaleString('es-AR')}</span></div>
+            <div><span class="cash-summary__label">Cierre</span><span class="cash-summary__value">${new Date(closure.closedAt).toLocaleString('es-AR')}</span></div>
+            <div><span class="cash-summary__label">Responsable</span><span class="cash-summary__value">${escapeHtml(closure.userName || 'N/A')}</span></div>
+          </div>
+          <div class="cash-summary__divider"></div>
+          <div class="cash-summary__row"><span>Monto Inicial</span><span>${format(closure.initialAmount)}</span></div>
+          <div class="cash-summary__row"><span>Ingresos Manuales</span><span style="color:var(--color-success);">+${format(closure.manualIn)}</span></div>
+          <div class="cash-summary__row"><span>Egresos Manuales</span><span style="color:var(--color-danger);">-${format(closure.manualOut)}</span></div>
+          <div class="cash-summary__divider"></div>
+          <div class="cash-summary__row"><span>Ventas Efectivo</span><span>${format(closure.cashSales)}</span></div>
+          <div class="cash-summary__row"><span>Ventas Transferencia</span><span>${format(closure.transferSales)}</span></div>
+          <div class="cash-summary__row"><span>Ventas Débito</span><span>${format(closure.debitSales)}</span></div>
+          <div class="cash-summary__row"><span>Ventas Cuenta Corriente</span><span>${format(closure.accountSales)}</span></div>
+          <div class="cash-summary__row cash-summary__total"><span>Total Ventas</span><span>${format(closure.totalSales)}</span></div>
+          <div class="cash-summary__divider"></div>
+          <div class="cash-summary__row cash-summary__expected"><span>Efectivo Esperado</span><span>${format(closure.expectedTotal)}</span></div>
+          <div class="cash-summary__row"><span>Monto Real Contado</span><span>${format(closure.finalAmount)}</span></div>
+          <div class="cash-summary__row ${Math.abs(closure.difference) > 0.01 ? 'cash-diff--alert' : 'cash-diff--ok'}"><span><strong>Diferencia</strong></span><span><strong>${closure.difference >= 0 ? '+' : ''}${format(closure.difference)}</strong></span></div>
+          ${closure.closeObservation ? `<div class="cash-summary__divider"></div><div class="cash-summary__row"><span>Observación</span><span>${escapeHtml(closure.closeObservation)}</span></div>` : ''}
+        </div>
+      `;
+
+      const footer = `
+        <button class="btn btn-secondary" id="close-detail-btn">Cerrar</button>
+        <button class="btn btn-primary" id="detail-pdf-btn"><i class="fa-solid fa-file-pdf"></i> Reimprimir PDF</button>
+      `;
+
+      Modal.show({ title: 'Detalle del Cierre', body, footer });
+
+      document.getElementById('close-detail-btn')?.addEventListener('click', () => Modal.close());
+      document.getElementById('detail-pdf-btn')?.addEventListener('click', () => {
+        Modal.close();
+        this._reprintClosurePDF(closureId);
+      });
+    } catch (error) {
+      logger.error('Cash', 'Error showing closure detail', error);
+      Toast.error('Error', 'No se pudo mostrar el detalle');
+    }
+  }
+
+  async _reprintClosurePDF(closureId) {
+    try {
+      const closure = await cashClosureRepo.findById(closureId);
+      if (!closure) {
+        Toast.error('Error', 'Cierre no encontrado');
+        return;
+      }
+
+      const settings = state.get('settings');
+      await exportCashToPDF(closure, closure.movements || [], settings);
+      Toast.success('PDF generado', 'Reporte de caja exportado correctamente');
+    } catch (error) {
+      logger.error('Cash', 'Error reprinting PDF', error);
+      Toast.error('Error', 'No se pudo generar el PDF');
+    }
   }
 
   openSession() {
@@ -247,8 +431,8 @@ class Cash {
         return;
       }
       try {
-        await cashService.closeSession(finalAmount, observation);
-        const diff = parseFloat(finalAmount) - s.expectedTotal;
+        const closure = await cashService.closeSession(finalAmount, observation);
+        const diff = closure.difference;
         if (Math.abs(diff) > 0.01) {
           Toast.warning('Caja Cerrada', `Diferencia: ${format(diff)}`);
         } else {

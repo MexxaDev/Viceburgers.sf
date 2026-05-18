@@ -1,7 +1,7 @@
 'use strict';
 
 const DB_NAME = 'pos_premium_db';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 const STORES = {
   products: {
@@ -49,6 +49,14 @@ const STORES = {
     keyPath: 'id',
     autoIncrement: false,
     indexes: [{ name: 'sessionId', keyPath: 'sessionId' }]
+  },
+  cash_closures: {
+    keyPath: 'id',
+    autoIncrement: false,
+    indexes: [
+      { name: 'sessionId', keyPath: 'sessionId' },
+      { name: 'closedAt', keyPath: 'closedAt' }
+    ]
   },
   settings: {
     keyPath: 'key',

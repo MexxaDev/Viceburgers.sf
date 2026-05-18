@@ -10,6 +10,7 @@ const ALL_STORES = [
   'sale_items',
   'cash_sessions',
   'cash_movements',
+  'cash_closures',
   'settings',
   'users',
   'notifications',

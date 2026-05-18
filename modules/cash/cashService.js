@@ -1,10 +1,11 @@
 'use strict';
 
-import { cashSessionRepo, cashMovementRepo, saleRepo } from '../../db/repositories.js';
+import { cashSessionRepo, cashMovementRepo, cashClosureRepo, saleRepo } from '../../db/repositories.js';
 import Modal from '../../components/modal.js';
 import Toast from '../../components/toast.js';
 import { getPayments, getMethodTotal } from '../../utils/payments.js';
 import state from '../../js/state.js';
+import { exportCashToPDF } from '../../utils/pdfExport.js';
 
 class CashService {
   constructor() {
@@ -72,11 +73,58 @@ class CashService {
     if (isNaN(amount) || amount < 0) {
       throw new Error('Monto final inválido');
     }
+
+    const summary = await this.getSessionSummary();
+    if (!summary) {
+      throw new Error('No se pudo calcular el resumen de caja');
+    }
+
     this.currentSession.closedAt = new Date().toISOString();
     this.currentSession.finalAmount = amount;
     this.currentSession.closeObservation = observation || '';
     await cashSessionRepo.update(this.currentSession);
+
+    const closure = await this._createClosure(summary, amount, observation);
     this.currentSession = null;
+
+    try {
+      const settings = state.get('settings');
+      await exportCashToPDF(closure, closure.movements, settings);
+    } catch (e) {
+      /* PDF auto-download best-effort */
+    }
+
+    return closure;
+  }
+
+  async _createClosure(summary, finalAmount, observation) {
+    const session = summary.session;
+    const difference = finalAmount - summary.expectedTotal;
+    const closure = {
+      id: `closure_${Date.now()}`,
+      sessionId: session.id,
+      closedAt: session.closedAt,
+      openedAt: session.openedAt,
+      initialAmount: summary.initialAmount,
+      manualIn: summary.manualIn,
+      manualOut: summary.manualOut,
+      cashSales: summary.cashSales,
+      transferSales: summary.transferSales,
+      debitSales: summary.debitSales,
+      accountSales: summary.accountSales,
+      totalSales: summary.totalSales,
+      expectedTotal: summary.expectedTotal,
+      finalAmount: finalAmount,
+      difference: difference,
+      userId: session.userId,
+      userName: session.userName,
+      observation: session.observation,
+      closeObservation: observation || '',
+      salesCount: summary.salesCount,
+      movements: summary.movements.map(m => ({ ...m }))
+    };
+    await cashClosureRepo.create(closure);
+    return closure;
   }
 
   async addMovement(type, amount, description = '') {
@@ -122,27 +170,33 @@ class CashService {
     }
   }
 
-  async getMovements() {
-    if (!this.currentSession) {
-      return [];
-    }
+  async getMovementsForSession(sessionId) {
     try {
-      return (await cashMovementRepo.query('sessionId', this.currentSession.id)) || [];
+      return (await cashMovementRepo.query('sessionId', sessionId)) || [];
     } catch {
       return [];
     }
   }
 
-  async getSessionSummary() {
+  async getMovements() {
     if (!this.currentSession) {
+      return [];
+    }
+    return this.getMovementsForSession(this.currentSession.id);
+  }
+
+  async getSummaryForSession(sessionId) {
+    const session = await cashSessionRepo.findById(sessionId);
+    if (!session) {
       return null;
     }
-    const movements = await this.getMovements();
+
+    const movements = await this.getMovementsForSession(sessionId);
     const allSales = (await saleRepo.findAll()) || [];
-    const sessionSales = allSales.filter(s => s.sessionId === this.currentSession.id);
+    const sessionSales = allSales.filter(s => s.sessionId === sessionId);
 
     const opening = movements.find(m => m.type === 'opening');
-    const initialAmount = opening ? parseFloat(opening.amount) : parseFloat(this.currentSession.initialAmount) || 0;
+    const initialAmount = opening ? parseFloat(opening.amount) : parseFloat(session.initialAmount) || 0;
     const manualIn = movements.filter(m => m.type === 'in').reduce((s, m) => s + parseFloat(m.amount), 0);
     const manualOut = movements.filter(m => m.type === 'out').reduce((s, m) => s + parseFloat(m.amount), 0);
     const cashSales = sessionSales.reduce((s, sale) => s + getMethodTotal(sale, 'cash'), 0);
@@ -162,10 +216,35 @@ class CashService {
       accountSales,
       totalSales,
       expectedTotal,
-      session: this.currentSession,
+      session,
       movements,
       salesCount: sessionSales.length
     };
+  }
+
+  async getSessionSummary() {
+    if (!this.currentSession) {
+      return null;
+    }
+    return this.getSummaryForSession(this.currentSession.id);
+  }
+
+  async getAllClosedSessions() {
+    try {
+      const sessions = await cashSessionRepo.findAll();
+      return sessions.filter(s => s.closedAt).sort((a, b) => new Date(b.closedAt) - new Date(a.closedAt));
+    } catch {
+      return [];
+    }
+  }
+
+  async getClosures() {
+    try {
+      const closures = await cashClosureRepo.findAll();
+      return closures.sort((a, b) => new Date(b.closedAt) - new Date(a.closedAt));
+    } catch {
+      return [];
+    }
   }
 
   _showForcedOpenModal() {
