@@ -25,7 +25,9 @@ const ALIAS_MAP = {
   'cocacolalata': 'Coca-Cola 500.png',
   'sprite500lata': 'Coca-Cola 500 Zero.png',
   'aguamineral': 'logo vice.png',
-  'medallonadicional': 'logo vice.png'
+  'medallonadicional': 'logo vice.png',
+  'combosampler': 'logo vice.png',
+  'medallonextra': 'logo vice.png'
 };
 
 function normalize(str) {
