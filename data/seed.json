@@ -159,7 +159,7 @@
     {
       "id": "prod_18",
       "name": "Lata Heineken",
-      "price": 3000,
+      "price": 4000,
       "stock": 200,
       "categoryId": "cat_3",
       "barcode": "7791000000018",
@@ -173,7 +173,7 @@
     {
       "id": "prod_19",
       "name": "Lata Amstel",
-      "price": 2500,
+      "price": 4000,
       "stock": 200,
       "categoryId": "cat_3",
       "barcode": "7791000000019",
@@ -201,7 +201,7 @@
     {
       "id": "prod_21",
       "name": "Coca-Cola Lata",
-      "price": 2000,
+      "price": 3000,
       "stock": 200,
       "categoryId": "cat_3",
       "barcode": "7791000000021",
@@ -215,7 +215,7 @@
     {
       "id": "prod_22",
       "name": "Sprite 500 lata",
-      "price": 2000,
+      "price": 3000,
       "stock": 200,
       "categoryId": "cat_3",
       "barcode": "7791000000022",
@@ -229,7 +229,7 @@
     {
       "id": "prod_23",
       "name": "Agua mineral",
-      "price": 3000,
+      "price": 2000,
       "stock": 23,
       "categoryId": "cat_3",
       "barcode": "00001",
