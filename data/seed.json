@@ -239,6 +239,34 @@
       "price_web": null,
       "description": "Agua mineral 500ml",
       "image": ""
+    },
+    {
+      "id": "prod_24",
+      "name": "Combo Sampler",
+      "price": 22500,
+      "stock": 20,
+      "categoryId": "cat_4",
+      "barcode": "7791000000024",
+      "sku": "CB-SAMP",
+      "visible": true,
+      "visible_web": true,
+      "price_web": null,
+      "description": "3 mini burgers variadas con papas fritas",
+      "image": ""
+    },
+    {
+      "id": "prod_25",
+      "name": "Medallón Extra",
+      "price": 2500,
+      "stock": 100,
+      "categoryId": "cat_2",
+      "barcode": "7791000000025",
+      "sku": "ME-001",
+      "visible": true,
+      "visible_web": true,
+      "price_web": null,
+      "description": "Medallón de carne extra para tu hamburguesa",
+      "image": ""
     }
   ],
   "users": [
