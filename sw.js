@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE_NAME = 'syntra-pos-v1';
+const CACHE_NAME = 'syntra-pos-v2';
 
 const PRECACHE_URLS = [
   '/',
@@ -13,6 +13,7 @@ const PRECACHE_URLS = [
   '/css/pages.css',
   '/css/responsive.css',
   '/css/shop.css',
+  '/css/payment-blocker.css',
   '/icons/favicon.svg',
   '/icons/icon-192.svg',
   '/icons/icon-512.svg',

@@ -22,6 +22,9 @@ import { hashPassword } from '../utils/hash.js';
 import { logger } from '../utils/logger.js';
 import { getDefaultRoute } from '../config/permissions.js';
 import { BRAND, getBrandLogo } from '../config/brandConfig.js';
+import Blocker from '../modules/blocker/blocker.js';
+
+Blocker.activate();
 
 async function seedDatabase() {
   try {
